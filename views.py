@@ -4,6 +4,8 @@ from handlers.UserManagement import search_user_by_username, send_recovery_passw
 from handlers.UserManagement import update_username, search_user_by_id, update_email, update_password
 from handlers.UserManagement import get_username_by_id
 from handlers.Verifiers import check_username_exists, check_email_exists
+from handlers.Retrievers import get_all_products
+from handlers.DataBaseCoordinator import db_query
 import os
 
 
@@ -17,7 +19,7 @@ views = Blueprint('views', __name__)
 # This route is used to show the home page
 @views.route('/', methods=['GET'])
 def index():
-    return render_template('index.html')
+    return render_template('catalog_index.html')
 
 
 # This route is used to perform the login
@@ -49,7 +51,7 @@ def login():
             session["id"] = get_id_by_username(username)
 
             # Return the 2FA login page
-            return redirect(url_for("views.profile", username=username, id=session["id"]))
+            return redirect(url_for("views.catalog", id=session["id"]))
 
 
     else:
@@ -167,7 +169,8 @@ def check_email():
     # Return the response as a JSON object
     return jsonify(response)
 
-
+# This view is used to check if te email exits
+@views.route('/update_account/<id>', methods=['POST'])
 def update_account(id):
 
     # Set the user's account image file path
@@ -219,7 +222,7 @@ def update_account(id):
         update_password(id, password)
     
     # Return the profile page
-    return redirect(url_for("views.profile", username=get_username_by_id(id)))
+    return redirect(url_for("views.catalog", id=id))
 
 
 # This view is used to get a image
@@ -230,3 +233,20 @@ def get_image(filename):
     path = "/".join(filename.split("/")[:-1])
     filename = filename.split("/")[-1]
     return send_from_directory(path, filename)
+
+
+@views.route('/catalog/<id>')
+def catalog(id):
+    
+        # Get the username and id from the session
+        username = session["username"]
+    
+        # Return the catalog page
+        return render_template("catalog.html", username=username, id=id)
+
+
+@views.route('/products')
+def products():
+
+    products = get_all_products()
+    return jsonify(products)

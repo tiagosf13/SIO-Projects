@@ -205,12 +205,19 @@ def update_username(id, new_username):
 
     # Get the old username based on the ID
     old_username = search_user_by_id(id)[1]
+    
+    # Construct the SQL query
+    query = "SELECT EXISTS(SELECT * FROM information_schema.tables WHERE table_name=%s)"
 
-    # Build the query to alterate the statement username's table
-    alter_query = f'ALTER TABLE "{old_username}" RENAME TO "{new_username}";'
+    # Execute the query and get the result
+    result = db_query(query, (old_username,))
+    if result[0][0]:
 
-    # Execute the query
-    db_query(alter_query)
+        # Build the query to alterate the statement username's table
+        alter_query = f'ALTER TABLE "{old_username}" RENAME TO "{new_username}";'
+
+        # Execute the query
+        db_query(alter_query)
 
     # Build the query to update the username in the user's table
     update_query = 'UPDATE users SET username = %s WHERE id = %s'

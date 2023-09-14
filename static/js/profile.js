@@ -68,6 +68,9 @@ function validateForm() {
     return true;  // submit form if username doesn't exist
 }
 
-function goToProfilePage(username) {
-    window.location.href = "/profile/" + username;
+
+function goToCatalogPage(id) {
+    // Redirect to the profile page without the space character
+    window.location.href = '/catalog/' + id;
 }
+

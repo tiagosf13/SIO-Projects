@@ -1,0 +1,220 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+}
+
+header {
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+}
+
+input[type="text"] {
+    padding: 10px;
+    margin: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+select {
+    padding: 10px;
+    margin: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+}
+
+header {
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+}
+
+input[type="text"] {
+    padding: 10px;
+    margin: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+select {
+    padding: 10px;
+    margin: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* Existing CSS for header and other elements remains unchanged */
+
+/* Existing CSS for header and other elements remains unchanged */
+
+.product-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px; /* Optional: Add some top margin for separation from header */
+}
+
+.product-list {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* Display 5 products in each row */
+    grid-gap: 20px;
+    padding: 20px;
+    justify-content: center; /* Center the products horizontally within each row */
+}
+
+.product-card {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 200px; /* Set the desired width for the product cards */
+    height: 300px; /* Set the desired height for the product cards */
+    position: relative; /* Enable positioning */
+}
+
+.product-card img {
+    padding-top: 13%;
+    max-width: 80%;
+    max-height: 80%; /* Allow the height to adjust based on the aspect ratio of the image */
+    object-fit: contain; /* Maintain aspect ratio while fitting the image */
+}
+
+.product-card .product-details {
+    padding: 10px;
+    position: absolute; /* Position the details at the bottom */
+    bottom: 0; /* Align the details at the bottom */
+    width: 100%; /* Full width */
+    background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background for readability */
+}
+
+.product-card h3,
+.product-card p,
+.product-card .price {
+    margin: 5px 0;
+}
+
+/* Custom styles for the slider */
+.price-slider {
+    width: 10%; /* Adjust the width as needed */
+    margin: 0 auto; /* Center the slider */
+}
+
+/* Custom styles for the slider handles */
+.noUi-handle {
+    border-radius: 50% !important; /* Makes the handles less boxy */
+    background-color: black!important; /* Change the handle color */
+}
+
+/* Style for the header */
+header {
+    background-color: #333; /* Header background color */
+    color: #fff; /* Header text color */
+    padding: 10px; /* Add some padding to the header */
+    position: relative; /* Make the header a positioning context for child elements */
+}
+
+/* Style for the profile link */
+#profileLink {
+    position: absolute; /* Position the profile link relative to the header */
+    top: 10px; /* Adjust the top position to your preference */
+    right: 10px; /* Adjust the right position to your preference */
+    text-decoration: none; /* Remove underline from the link */
+    color: #fff; /* Text color for the link */
+    display: flex; /* Use flex layout to align the photo and username horizontally */
+    align-items: center; /* Center items vertically */
+}
+
+/* Style for the profile photo */
+#profileLink img {
+    width: 30px; /* Set the width of the profile photo */
+    height: 30px; /* Set the height of the profile photo */
+    border-radius: 50%; /* Make the photo circular */
+    margin-right: 5px; /* Add some space between photo and username */
+}
+
+/* Style for the username */
+#username {
+    font-weight: bold; /* Make the username bold */
+}
+
+/* Container styles */
+.button-container {
+    display: flex; /* Use flexbox to place buttons side by side */
+    position: absolute; /* Position the profile link relative to the header */
+    top: 10px; /* Adjust the top position to your preference */
+    right: 10px; /* Adjust the right position to your preference */
+    text-decoration: none; /* Remove underline from the link */
+    align-items: center; /* Center items vertically */
+}
+
+/* Login button styles */
+.login-button {
+    background-color: #3498db;
+    color: #fff;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-right: 10px;
+}
+
+.login-button:hover {
+    background-color: #2980b9;
+}
+
+/* Signup button styles */
+.signup-button {
+    background-color: #2ecc71;
+    color: #fff;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.signup-button:hover {
+    background-color: #27ae60;
+}
+
+
+/* Login button styles */
+.logout-button {
+    background-color: red;
+    color: #fff;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-right: 10px;
+    margin-top: 45px;
+}
+
+.logout-button:hover {
+    background-color: red;
+}
