@@ -14,7 +14,7 @@ To access the full project, including all its resources and code, please visit t
 
 ## Features
 
-- Interactive Chat with a strong focus on connecting users with their dedicated financial specialists.
+- Save your cart for later
 - Effortlessly import statements from leading banks such as Santander and Caixa Geral de Depósitos with just a few clicks.
 - Gain valuable insights into your financial transactions through comprehensive analysis of both internal and imported statements. Easily track and visualize your expenses and revenue with detailed breakdowns, presented in an intuitive cheese graph accompanied by a categorized table for a holistic view of your financial data.
 - Stay on top of your financial obligations with a dedicated calendar feature that highlights all the crucial dates managed by your specialist. This comprehensive calendar ensures you never miss important financial milestones, allowing for efficient financial planning and peace of mind.
