@@ -252,7 +252,7 @@ def catalog(id):
 def products():
 
     products = get_all_products()
-    print(products)
+
     return jsonify(products)
 
 
