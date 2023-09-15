@@ -1,5 +1,4 @@
 from handlers.DataBaseCoordinator import db_query
-from flask import jsonify
 
 def get_all_products():
     query = "SELECT * FROM products"
@@ -13,8 +12,17 @@ def get_all_products():
             "description": row[2],
             "price": row[3],
             "category": row[4],
-            # Add other fields as needed
+            "stock": row[5]
         }
         products.append(product)
 
     return products
+
+def verify_product_id_exists(id):
+    query = "SELECT * FROM products WHERE id = %s"
+    results = db_query(query, (id,))
+
+    if len(results) == 0:
+        return False
+    else:
+        return True

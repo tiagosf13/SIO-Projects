@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Admin Dashboard</title>
+        <link rel="stylesheet" href="{{url_for('static', filename='css/catalog_admin.css')}}">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nouislider@14.6.4/distribute/nouislider.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/nouislider@14.6.4/distribute/nouislider.min.js"></script>
+    </head>
+    <body>
+        <header>
+            <h1>Admin Dashboard</h1>
+            <nav>
+                <ul>
+                    <li><a href="/catalog/{{id}}">Home</a></li>
+                    <li><a href="#">Inventory Management</a>
+                        <ul>
+                            <li><a id="add_product">Add Product</a></li>
+                            <li><a id="remove_product">Remove Product</a></li>
+                            <li><a id="edit_product">Edit Product</a></li>
+                            <li><a href="/product-quantities/{{id}}">Manage Quantities</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="/">Logout</a></li>
+                    <li><a href="/profile/{{username}}" id="profileLink">
+                        <img src="{{ url_for('views.get_image', filename='database/accounts/' + id + '/' + id + '.png') }}" alt="Profile Photo">
+                        <span id="username">{{username}}</span>
+                    </a></li>
+                    
+                </ul>
+            </nav>
+        </header>
+
+        <h1>Product Catalog</h1>
+        <input type="text" id="searchInput" placeholder="Search products">
+        <select id="categoryFilter">
+            <option value="all">All Categories</option>
+            <option value="electronics">Electronics</option>
+            <option value="clothing">Clothing</option>
+            <option value="footwear">Footwear</option>
+            <option value="kitchen">Kitchen</option>
+            <option value="accessories">Accessories</option>
+            <option value="furniture">Furniture</option>
+            <option value="software">Software</option>
+            <option value="fitness">Fitness</option>
+            <option value="outdoors">Outdoors</option>
+            <!-- Add more categories as needed -->
+        </select>
+
+        <select id="stockSelect">
+            <option value="inStock">In Stock</option>
+            <option value="outStock">Out of Stock</option>
+            <!-- Add more categories as needed -->
+        </select>
+
+        <select id="sortOrder">
+            <option value="asc">Price: Low to High</option>
+            <option value="desc">Price: High to Low</option>
+        </select>
+        <div class="price-slider" id="priceSlider"></div>
+        <br>
+        <span id="minMaxPriceLabel">Price Range: $0 - $1000</span>    
+
+        <div class="product-container">
+            <div class="product-list">
+                <!-- Product listings will be displayed here -->
+            </div>
+        </div>
+
+        <!-- Add Product Popup -->
+        <div id="addProductPopup" class="popup">
+            <div class="popup-content">
+                <span class="close" onclick="closePopup('addProductPopup')">&times;</span>
+                <h2>Add Product</h2>
+                <form id="productForm" action="/add_product/{{id}}" method="post" enctype="multipart/form-data">
+                    <label for="productName">Name:</label>
+                    <input type="text" id="productName" name="productName" required>
+                
+                    <label for="productPrice">Price:</label>
+                    <input type="number" id="productPrice" name="productPrice" required>
+                
+                    <label for="productDescription">Description:</label>
+                    <textarea id="productDescription" name="productDescription" rows="4" required></textarea>
+                
+                    <label for="productCategory">Category:</label>
+                    <select id="categoryFilter" name="productCategory">
+                        <option value="electronics">Electronics</option>
+                        <option value="clothing">Clothing</option>
+                        <option value="footwear">Footwear</option>
+                        <option value="kitchen">Kitchen</option>
+                        <option value="accessories">Accessories</option>
+                        <option value="furniture">Furniture</option>
+                        <option value="software">Software</option>
+                        <option value="fitness">Fitness</option>
+                        <option value="outdoors">Outdoors</option>
+                        <!-- Add more categories as needed -->
+                    </select>
+
+                    <label for="productUnits">Number of Units:</label>
+                    <input type="number" id="productUnits" name="productUnits" required>
+                
+                    <label for="productImage">Image:</label>
+                    <input type="file" id="productImage" name="productImage" accept="image/*" required>
+                
+                    <button type="submit">Add</button>
+                </form>                
+            </div>
+        </div>
+
+        <!-- Remove Product Popup -->
+        <div id="removeProductPopup" class="popupRemove">
+            <div class="popup-contentRemove">
+                <span class="closeRemove" onclick="closePopup('removeProductPopup')">&times;</span>
+                <h2>Remove Product</h2>
+                <form id="productForm" action="/remove_product/{{id}}" method="post" enctype="multipart/form-data">
+                    <label for="productId">Name:</label>
+                    <input type="text" id="productId" name="productId" required>
+                    <button type="submit">Remove</button>
+                </form>                
+            </div>
+        </div>
+
+
+        <!-- Edit Product Popup -->
+        <div id="editProductPopup" class="popupEdit">
+            <div class="popup-contentEdit">
+                <span class="close" onclick="closePopup('editProductPopup')">&times;</span>
+                <h2>Edit Product</h2>
+                <form id="productForm" action="/edit_product/{{id}}" method="post" enctype="multipart/form-data">
+
+                    <label for="productId">Id:</label>
+                    <input type="text" id="productId" name="productId" required>
+
+                    <label for="productName">Name:</label>
+                    <input type="text" id="productName" name="productName">
+                
+                    <label for="productPrice">Price:</label>
+                    <input type="number" id="productPrice" name="productPrice">
+                
+                    <label for="productDescription">Description:</label>
+                    <textarea id="productDescription" name="productDescription" rows="4"></textarea>
+                
+                    <label for="productCategory">Category:</label>
+                    <select id="categoryFilter" name="productCategory">
+                        <option value="electronics">Electronics</option>
+                        <option value="clothing">Clothing</option>
+                        <option value="footwear">Footwear</option>
+                        <option value="kitchen">Kitchen</option>
+                        <option value="accessories">Accessories</option>
+                        <option value="furniture">Furniture</option>
+                        <option value="software">Software</option>
+                        <option value="fitness">Fitness</option>
+                        <option value="outdoors">Outdoors</option>
+                        <!-- Add more categories as needed -->
+                    </select>
+                
+                    <label for="productUnits">Number of Units:</label>
+                    <input type="number" id="productUnits" name="productUnits">
+                
+                    <label for="productImage">Image:</label>
+                    <input type="file" id="productImage" name="productImage" accept="image/*">
+                
+                    <button type="submit">Edit</button>
+                </form>                
+            </div>
+        </div>
+        
+
+        
+        <script type="text/javascript" src="{{url_for('static', filename='js/catalog_admin.js')}}"></script>
+    </body>
+</html>

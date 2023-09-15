@@ -2,11 +2,13 @@ from flask import Blueprint, render_template, request, jsonify, session, redirec
 from handlers.UserManagement import search_user_by_email, validate_login, get_id_by_username
 from handlers.UserManagement import search_user_by_username, send_recovery_password, create_user
 from handlers.UserManagement import update_username, search_user_by_id, update_email, update_password
-from handlers.UserManagement import get_username_by_id
+from handlers.UserManagement import get_user_role
 from handlers.Verifiers import check_username_exists, check_email_exists
 from handlers.Retrievers import get_all_products
-from handlers.DataBaseCoordinator import db_query
+from handlers.ProductManagement import create_product, remove_product, verify_product_id_exists, update_product_name, create_product_image
+from handlers.ProductManagement import update_product_description, update_product_price, update_product_category, update_product_quantity
 import os
+import pandas as pd
 
 
 
@@ -45,17 +47,14 @@ def login():
 
         # Check if the login credentials are valid
         if validate_login(username, password) == True:
-
             # Set the session variables
             session["username"] = username
             session["id"] = get_id_by_username(username)
+            session["admin"] = get_user_role(session["id"])
 
-            # Return the 2FA login page
             return redirect(url_for("views.catalog", id=session["id"]))
 
-
-    else:
-        return render_template("login.html")
+    return render_template("login.html")
 
 
 # This view is used to enroll new users into the platform
@@ -240,13 +239,89 @@ def catalog(id):
     
         # Get the username and id from the session
         username = session["username"]
-    
-        # Return the catalog page
-        return render_template("catalog.html", username=username, id=id)
+        admin = session["admin"]
+
+        if admin:
+            return render_template("catalog_admin.html", username=username, id=id)
+        else:
+            # Return the catalog page
+            return render_template("catalog.html", username=username, id=id)
 
 
 @views.route('/products')
 def products():
 
     products = get_all_products()
+    print(products)
     return jsonify(products)
+
+
+@views.route('/add_product/<id>', methods=['POST'])
+def add_product(id):
+
+    product_name = request.form.get("productName")
+    product_description = request.form.get("productDescription")
+    product_price = request.form.get("productPrice")
+    product_category = request.form.get("productCategory")
+    product_quantity = request.form.get("productUnits")
+    product_photo = request.files.get("productImage")
+
+    product_id = create_product(product_name, product_description, product_price, product_category, product_quantity, product_photo)
+
+
+    return redirect(url_for("views.catalog", id=session["id"]))
+
+
+@views.route('/remove_product/<id>', methods=['POST'])
+def remove_product_by_id(id):
+    # Updated route name and parameter name to avoid conflicts
+    product_id = request.form.get("productId")
+
+    # Assuming 'remove_product' is a function you've defined elsewhere, you can use it here
+    product = remove_product(product_id)
+
+    return redirect(url_for("views.catalog", id=session["id"]))
+
+
+@views.route('/edit_product/<id>', methods=['POST'])
+def edit_product_by_id(id):
+
+    product_id = request.form.get("productId")
+    product_name = request.form.get("productName")
+    product_description = request.form.get("productDescription")
+    product_price = request.form.get("productPrice")
+    product_category = request.form.get("productCategory")
+    product_quantity = request.form.get("productUnits")
+    product_photo = request.files.get("productImage")
+
+    if verify_product_id_exists(product_id):
+        if product_name != "":
+            update_product_name(product_id, product_name)
+        if product_description != "":
+            update_product_description(product_id, product_description)
+        if product_price != "":
+            update_product_price(product_id, product_price)
+        if product_category != "":
+            update_product_category(product_id, product_category)
+        if product_quantity != "":
+            update_product_quantity(product_id, product_quantity)
+        if product_photo:
+            create_product_image(product_id, product_photo)
+
+
+    return redirect(url_for("views.catalog", id=session["id"]))
+
+
+@views.route('/product-quantities/<id>', methods=['POST', 'GET'])
+def product_quantities(id):
+
+    products = get_all_products()
+
+
+    # Create a Pandas DataFrame from the list of dictionaries
+    #df = pd.DataFrame(products)
+
+    # Convert DataFrame to HTML table
+    #html_table = df.to_html(index=False, classes='table table-striped')
+
+    return render_template('product_quantities.html', products=products)

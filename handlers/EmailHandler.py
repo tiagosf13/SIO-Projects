@@ -8,7 +8,7 @@ import smtplib
 def send_email(to, subject, body):
 
     # Read Email credentials file
-    credentials = read_json("/handlers/email_credentials.json")
+    credentials = read_json("/credentials/EmailCredentials.json")
 
     # Create a MIMEText object to represent the email body
     msg = MIMEMultipart()

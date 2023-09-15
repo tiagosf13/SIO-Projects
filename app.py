@@ -20,7 +20,7 @@ if __name__ == '__main__':
         • User registration and login ========================================> DONE
         • User profiles               ========================================> DONE
         • Password management (reset, change) ================================> DONE
-        • User roles and permissions (admin, customer)
+        • User roles and permissions (admin, customer) =======================> DONE
     2. Product Catalog:
         • Product listings with details (name, description, price, images) ===> DONE
         • Product categories and filters =====================================> DONE
@@ -34,12 +34,12 @@ if __name__ == '__main__':
         • Payment processing (credit card, PayPal, etc.)
         • Order confirmation and receipt generation
     5. Inventory Management:
-        • Tracking product availability (in-stock, out-of-stock)
-        • Managing product quantities
+        • Tracking product availability (in-stock, out-of-stock) =============> DONE
+        • Managing product quantities ========================================> DONE
     6. Order History:
         • View and track past orders
         • Reorder from order history
     7. Reviews and Ratings:
         • Allow customers to rate and review products
-        • Display average ratings and reviews 
+        • Display average ratings and reviews
 """

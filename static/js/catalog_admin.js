@@ -2,6 +2,7 @@ const productContainer = document.querySelector('.product-list');
 const searchInput = document.getElementById('searchInput');
 const categoryFilter = document.getElementById('categoryFilter');
 const sortOrderSelect = document.getElementById('sortOrder');
+const stockSelect = document.getElementById('stockSelect');
 
 const priceSlider = document.getElementById('priceSlider');
 const minMaxPriceLabel = document.getElementById('minMaxPriceLabel');
@@ -43,6 +44,7 @@ function displayProducts() {
         .then(data => {
             // Get the selected sort order
             const sortOrder = sortOrderSelect.value;
+            const numberStock = stockSelect.value;
             
             // Filter and sort products based on user input
             const filteredProducts = data.filter(product => {
@@ -55,8 +57,15 @@ function displayProducts() {
                 const [minPrice, maxPrice] = priceSlider.noUiSlider.get();
                 const isWithinPriceRange = price >= parseFloat(minPrice) && price <= parseFloat(maxPrice);
 
+                // Check if the product is in stock
+                if (numberStock === 'inStock') {
+                    stockStatus = product.stock > 0;
+                }
+                else{
+                    stockStatus = product.stock <= 0;
+                }
 
-                return matchesSearch && matchesCategory && isWithinPriceRange;
+                return matchesSearch && matchesCategory && isWithinPriceRange&& stockStatus;
             });
 
             // Sort the products based on the selected order
@@ -78,13 +87,23 @@ function displayProducts() {
                 imgElement.src = `/get_image/catalog/${product.id}.png`;
                 imgElement.alt = product.name;
                 productCard.appendChild(imgElement);
-
-                productCard.innerHTML += `
-                <h3>${product.name}</h3>
-                <p class="product-details">${product.description}</p>
-                <p style="color: red">ID: ${product.id}</p>
-                <p class="price" style="color: green">${product.price} €</p>
+                if (product.stock <= 0  || product.stock == null) {
+                    productCard.innerHTML += `
+                    <h3>${product.name}</h3>
+                    <p>${product.description}</p>
+                    <p style="color: red">ID: ${product.id}</p>
+                    <p>Stock: 0</p>
+                    <p class="price">$${product.price}</p>
                 `;
+                } else{
+                    productCard.innerHTML += `
+                    <h3>${product.name}</h3>
+                    <p class="product-details">${product.description}</p>
+                    <p style="color: red">ID: ${product.id}</p>
+                    <p>Stock: ${product.stock}</p>
+                    <p class="price" style="color: green">${product.price} €</p>
+                `;
+                }
                 
                 productContainer.appendChild(productCard);
             });
@@ -100,6 +119,7 @@ searchInput.addEventListener('input', displayProducts);
 categoryFilter.addEventListener('change', displayProducts);
 sortOrderSelect.addEventListener('change', displayProducts);
 categoryFilter.addEventListener('change', displayProducts);
+stockSelect.addEventListener('change', displayProducts);
 
 // Initial product display
 displayProducts();
@@ -122,3 +142,57 @@ function goToCatalogIndex() {
         window.location.href = "/";
 }
 
+
+
+// Function to show the popup
+function showPopup(name) {
+    const popup = document.getElementById(name);
+    popup.style.display = "block";
+}
+
+// Function to close the popup
+function closePopup(name) {
+    const popup = document.getElementById(name);
+    popup.style.display = "none";
+}
+
+// Event listener to show the Add Product popup when "Add Product" is clicked
+const addProductLink = document.getElementById("add_product");
+addProductLink.addEventListener("click", function(event) {
+    event.preventDefault(); // Prevent the default behavior of the anchor link
+    showPopup("addProductPopup");
+});
+
+// Event listener to show the Remove Product popup when "Remove Product" is clicked
+const removeProductLink = document.getElementById("remove_product");
+removeProductLink.addEventListener("click", function(event) {
+    event.preventDefault(); // Prevent the default behavior of the anchor link
+    showPopup("removeProductPopup");
+});
+
+
+// Event listener to show the Remove Product popup when "Remove Product" is clicked
+const editProductLink = document.getElementById("edit_product");
+editProductLink.addEventListener("click", function(event) {
+    event.preventDefault(); // Prevent the default behavior of the anchor link
+    showPopup("editProductPopup");
+});
+
+
+// Event listener to close the Add Product popup when the close button is clicked
+const closeButtonAdd = document.querySelector(".popup#addProductPopup .close");
+closeButtonAdd.addEventListener("click", function() {
+    closePopup("addProductPopup");
+});
+
+// Event listener to close the Remove Product popup when the close button is clicked
+const closeButtonRemove = document.querySelector(".popup#removeProductPopup .close");
+closeButtonRemove.addEventListener("click", function() {
+    closePopup("removeProductPopup");
+});
+
+// Event listener to close the Remove Product popup when the close button is clicked
+const editButtonRemove = document.querySelector(".popup#editProductPopup .close");
+closeButtonRemove.addEventListener("click", function() {
+    closePopup("editProductPopup");
+});

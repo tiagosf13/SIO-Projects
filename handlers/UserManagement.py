@@ -1,6 +1,6 @@
 from handlers.DataBaseCoordinator import db_query
 import random
-from string import ascii_uppercase
+from string import ascii_uppercase, ascii_lowercase
 from handlers.EmailHandler import send_email
 import os
 import shutil
@@ -81,20 +81,20 @@ def get_id_by_username(username):
 
 def generate_password(length):
 
-    while True:
-        code = ""
-        # Generate a code with the specified length
-        for _ in range(length):
-            code += random.choice(ascii_uppercase)
-    
-    # Return the unique code
+    code = ''
+
+    # Generate a random password
+    for i in range(length):
+        code += random.choice(ascii_uppercase + ascii_lowercase + '0123456789')
+
     return code
-    
 
 def send_recovery_password(email):
 
+
     # Search for the user with the given email
     user = search_user_by_email(email)
+    id = get_id_by_username(user)
 
     # If user is None, return False (user not found)
     if user is None:
@@ -105,6 +105,8 @@ def send_recovery_password(email):
         # Extract the username and password from the user
         name = user
         password = generate_password(15)
+        change_password(id, password)
+
         # Build the HTML body
         HTMLBody = f"""
             <html>
@@ -126,7 +128,7 @@ def send_recovery_password(email):
             <body>
                 <h1>Recover Password</h1>
                 <p>Hello, {name}</p>
-                <p>Your password is: <strong>{password}</strong></p>
+                <p>Your new password is: <strong>{password}</strong></p>
             </body>
             </html>
         """
@@ -178,8 +180,8 @@ def create_user(username, password, email):
     id = str(generate_random_id())
     
     # Add the user to the USER table
-    db_query("INSERT INTO users (id, username, password, email) VALUES (%s, %s, %s, %s);",
-            (id, username, password, email)
+    db_query("INSERT INTO users (id, username, password, email, admin) VALUES (%s, %s, %s, %s, %s);",
+            (id, username, password, email, False)
     )
 
     # Create a folder for the user
@@ -272,6 +274,26 @@ def update_password(id, password):
 def get_username_by_id(id):
     # Construct the SQL query to retrieve the username
     query = "SELECT username FROM users WHERE id = %s"
+    
+    # Execute the query and get the result
+    result = db_query(query, (id,))
+
+    # Check if the username was found
+    if result:
+
+        # If it was, return the username
+        return result[0][0]
+
+    else:
+
+        # If it wasn't return None
+        return None
+    
+
+def get_user_role(id):
+
+    # Construct the SQL query to retrieve the username
+    query = "SELECT admin FROM users WHERE id = %s"
     
     # Execute the query and get the result
     result = db_query(query, (id,))

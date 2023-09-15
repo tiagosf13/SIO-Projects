@@ -37,31 +37,6 @@ body {
     background-color: #f0f0f0;
 }
 
-header {
-    background-color: #333;
-    color: #fff;
-    padding: 20px;
-    text-align: center;
-}
-
-header h1 {
-    margin: 0;
-}
-
-input[type="text"] {
-    padding: 10px;
-    margin: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-select {
-    padding: 10px;
-    margin: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
 /* Existing CSS for header and other elements remains unchanged */
 
 /* Existing CSS for header and other elements remains unchanged */
@@ -91,7 +66,7 @@ select {
     align-items: center;
     text-align: center;
     width: 200px; /* Set the desired width for the product cards */
-    height: 300px; /* Set the desired height for the product cards */
+    height: 320px; /* Set the desired height for the product cards */
     position: relative; /* Enable positioning */
 }
 
@@ -108,6 +83,8 @@ select {
     bottom: 0; /* Align the details at the bottom */
     width: 100%; /* Full width */
     background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background for readability */
+    font-size: small;
+    background-color: transparent;
 }
 
 .product-card h3,
@@ -126,14 +103,6 @@ select {
 .noUi-handle {
     border-radius: 50% !important; /* Makes the handles less boxy */
     background-color: black!important; /* Change the handle color */
-}
-
-/* Style for the header */
-header {
-    background-color: #333; /* Header background color */
-    color: #fff; /* Header text color */
-    padding: 10px; /* Add some padding to the header */
-    position: relative; /* Make the header a positioning context for child elements */
 }
 
 /* Style for the profile link */
