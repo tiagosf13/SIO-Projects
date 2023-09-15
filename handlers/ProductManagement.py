@@ -57,6 +57,16 @@ def remove_product(id):
 
     query = "DELETE FROM products WHERE id = %s"
     db_query(query, (id,))
+
+    # Get the current working directory
+    directory = os.getcwd()
+
+    # Define the path for the user's directory
+    user_directory = os.path.join(directory, "catalog")
+
+    # Create the user's directory and any missing parent directories
+    os.remove(os.path.join(user_directory, f"{id}.png"))
+
     return True
 
 

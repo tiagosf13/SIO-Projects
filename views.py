@@ -226,12 +226,12 @@ def update_account(id):
 
 # This view is used to get a image
 @views.route('/get_image/<path:filename>')
-def get_image(filename):
+def get_image(filename, cache_timeout=0):
 
     # Send the image
     path = "/".join(filename.split("/")[:-1])
     filename = filename.split("/")[-1]
-    return send_from_directory(path, filename)
+    return send_from_directory(path, filename, cache_timeout=0)
 
 
 @views.route('/catalog/<id>')
