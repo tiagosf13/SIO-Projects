@@ -16,7 +16,7 @@ if __name__ == '__main__':
     app.run(debug=True)
 
 """
-#   1. User Management: 
+    1. User Management: 
         • User registration and login ========================================> DONE
         • User profiles               ========================================> DONE
         • Password management (reset, change) ================================> DONE
