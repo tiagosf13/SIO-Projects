@@ -79,8 +79,10 @@ def check_database_table_exists(table_name):
             if table_name == "users":
                 # Construct the SQL query
                 query = "CREATE TABLE users (id SERIAL PRIMARY KEY, username VARCHAR(255), password VARCHAR(255), email VARCHAR(255), admin BOOLEAN)"
-            else:
+            elif table_name == "products":
                 query = "CREATE TABLE products (id SERIAL PRIMARY KEY, name VARCHAR(255), description VARCHAR(255), price VARCHAR(255), category VARCHAR(255), stock INTEGER)"
+            else:
+                query = "CREATE TABLE reviews (id SERIAL PRIMARY KEY, product_id INTEGER, user_id INTEGER, rating INTEGER, review VARCHAR(255))"
 
             # Execute the query
             db_query(query)

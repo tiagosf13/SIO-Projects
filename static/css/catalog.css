@@ -106,7 +106,7 @@ body {
 }
 
 /* Style for the profile link */
-#profileLink {
+#profileLink, #logoutButton {
     position: absolute; /* Position the profile link relative to the header */
     top: 10px; /* Adjust the top position to your preference */
     right: 10px; /* Adjust the right position to your preference */

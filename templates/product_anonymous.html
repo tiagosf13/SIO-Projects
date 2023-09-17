@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Page</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/product.css')}}">
+</head>
+<body>
+    <header>
+        <h1>Product Page</h1>
+    </header>
+    <div class="product-details">
+        <!-- Display product image, price, and ID here -->
+        <img src="/get_image/catalog/{{productId}}.png" alt="Product Image">
+        <div class="product-info">
+            <p class="product-name">{{productName}}</p>
+            <p style="color: red">ID: {{productId}}</p>
+            <p style="color: green">Price: {{productPrice}} €</p>
+        </div>
+    </div>
+    
+
+    <a href="#" id="backToCatalog">Back to Catalog</a>
+
+    <div class="all-reviews">
+        <h3>All Reviews</h3>
+        <ul id="reviewList">
+            <!-- Reviews will be added here dynamically -->
+        </ul>
+    </div>
+
+    <!-- Include the external JavaScript file -->
+    <script type="text/javascript">
+        const productId = '{{productId}}'; // Assign the product ID to a JavaScript variable
+    </script>
+    <script type="text/javascript" src="{{url_for('static', filename='js/product_anonymous.js')}}"></script>
+    </script>
+
+</body>
+</html>

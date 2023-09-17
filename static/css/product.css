@@ -1,0 +1,209 @@
+/* Reset default margin and padding for the body */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5; /* Set a background color */
+}
+
+/* Style the header with a background color and text color */
+header {
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 20px 0;
+}
+
+/* Center align the h1 title */
+header h1 {
+    margin: 0;
+}
+
+/* Style the product details container */
+.product-details {
+    max-width: 800px; /* Increase the maximum width for the product details container */
+    margin: 20px auto; /* Center the container on the page horizontally */
+    background-color: #fff; /* White background for the container */
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add a subtle shadow to the container */
+
+    /* Use flexbox to arrange the content */
+    display: flex;
+    flex-direction: column; /* Arrange the items vertically */
+    align-items: center; /* Horizontally center align the content */
+    text-align: center; /* Center-align text within the container */
+}
+
+/* Style the product image */
+.product-details img {
+    max-width: 300px; /* Set the maximum width for the product image */
+    margin-bottom: 20px; /* Add some space below the image */
+}
+
+/* Style the product name */
+.product-name {
+    font-size: 24px; /* Increase font size for the product name */
+    font-weight: bold; /* Make the product name bold */
+}
+
+/* Style the product information (ID and price) */
+.product-info {
+    font-size: 16px;
+    margin-top: 10px; /* Add some space above the product information */
+}
+
+/* Style the "Back to Catalog" link */
+a {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    color: #333;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+a:hover {
+    color: #555;
+}
+
+
+/* Style the balloon container */
+.review-balloon {
+    background-color: #f5f5f5;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 10px 0;
+    display: block; /* Change to block to stack them vertically */
+    max-width: fit-content; /* Limit the maximum width as a percentage of the parent container */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    clear: both; /* Ensure proper vertical stacking */
+    background-color: greenyellow;
+}
+
+/* Style the review paragraph within the balloon */
+.review-paragraph {
+    margin: 0; /* Remove default margin */
+    margin-top: 5%;
+}
+
+
+/* Style the review form container */
+#reviewForm {
+    background-color: #fff;
+    border-radius: 5px;
+
+    max-width: 800px; /* Increase the maximum width for the product details container */
+    margin: 20px auto; /* Center the container on the page horizontally */
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add a subtle shadow to the container */
+
+    /* Use flexbox to arrange the content */
+    display: flex;
+    flex-direction: column; /* Arrange the items vertically */
+    align-items: center; /* Horizontally center align the content */
+    text-align: center; /* Center-align text within the container */
+}
+
+/* Style the review form heading */
+#reviewForm h2 {
+    font-size: 18px;
+    margin-bottom: 5px;
+    width: fit-content;
+}
+
+/* Style the user review textarea */
+#userReview {
+    width: 400px; /* Adjust the width in pixels as needed */
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    margin-bottom: 5px;
+    resize: vertical;
+    max-height: 40px;
+    height: fit-content;
+}
+
+/* Style the rating label */
+label[for="rating"] {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 3px;
+}
+
+/* Style the rating select dropdown */
+#rating {
+    width: fit-content;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    margin-bottom: 5px;
+}
+
+/* Style the submit button */
+#submitReview {
+    background-color: #007bff; /* Change to your desired button color */
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#submitReview:hover {
+    background-color: #0056b3; /* Change to the hover color */
+}
+
+/* Style the average rating container */
+.average-rating {
+    text-align: center; /* Center-align the content */
+}
+
+/* Style the average rating heading */
+.average-rating h3 {
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+/* Style the average rating value */
+#averageRating {
+    font-size: 18px;
+    font-weight: bold;
+    color: #007bff; /* Change to your desired color */
+    width: fit-content;
+    margin: 0 auto; /* Center the average rating value horizontally */
+}
+
+
+/* Style the "All Reviews" container */
+.all-reviews {
+    max-width: 800px; /* Increase the maximum width for the product details container */
+    margin: 20px auto; /* Center the container on the page horizontally */
+    background-color: #fff; /* White background for the container */
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add a subtle shadow to the container */
+    text-align: start; /* Left-align text within the container */
+}
+
+/* Style the "All Reviews" header */
+.all-reviews h3 {
+    font-size: 18px; /* Adjust font size as needed */
+    text-align: center; /* Center-align the header text */
+    margin-bottom: 10px; /* Add some spacing below the header */
+}
+
+/* Style the review balloons */
+.review-balloon {
+    background-color: #f5f5f5;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 10px 0;
+    display: block; /* Change to block to stack them vertically */
+    max-width: fit-content; /* Limit the maximum width as a percentage of the parent container */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    clear: both; /* Ensure proper vertical stacking */
+    background-color: greenyellow;
+    align-items: start; /* Align content at the start */
+    text-align: start; /* Left-align text within the balloons */
+}

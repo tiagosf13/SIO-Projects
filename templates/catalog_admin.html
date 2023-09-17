@@ -22,7 +22,7 @@
                             <li><a href="/product-quantities/{{id}}">Manage Quantities</a></li>
                         </ul>
                     </li>
-                    <li><a href="/">Logout</a></li>
+                    <li><button class="logout-button" id="logoutButton">Logout</button></li>
                     <li><a href="/profile/{{username}}" id="profileLink">
                         <img src="{{ url_for('views.get_image', filename='database/accounts/' + id + '/' + id + '.png') }}" alt="Profile Photo">
                         <span id="username">{{username}}</span>
@@ -136,13 +136,14 @@
                     <input type="text" id="productName" name="productName">
                 
                     <label for="productPrice">Price:</label>
-                    <input type="number" id="productPrice" name="productPrice">
+                    <input type="text" id="productPrice" name="productPrice">
                 
                     <label for="productDescription">Description:</label>
                     <textarea id="productDescription" name="productDescription" rows="4"></textarea>
                 
                     <label for="productCategory">Category:</label>
                     <select id="categoryFilter" name="productCategory">
+                        <option value="">Choose Category</option>
                         <option value="electronics">Electronics</option>
                         <option value="clothing">Clothing</option>
                         <option value="footwear">Footwear</option>
@@ -154,7 +155,6 @@
                         <option value="outdoors">Outdoors</option>
                         <!-- Add more categories as needed -->
                     </select>
-                
                     <label for="productUnits">Number of Units:</label>
                     <input type="number" id="productUnits" name="productUnits">
                 

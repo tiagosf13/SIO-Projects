@@ -4,9 +4,10 @@ from handlers.UserManagement import search_user_by_username, send_recovery_passw
 from handlers.UserManagement import update_username, search_user_by_id, update_email, update_password
 from handlers.UserManagement import get_user_role
 from handlers.Verifiers import check_username_exists, check_email_exists
-from handlers.Retrievers import get_all_products
-from handlers.ProductManagement import create_product, remove_product, verify_product_id_exists, update_product_name, create_product_image
+from handlers.Retrievers import get_all_products, get_product_by_id, get_product_reviews
+from handlers.ProductManagement import create_product, remove_product, verify_id_exists, update_product_name, create_product_image
 from handlers.ProductManagement import update_product_description, update_product_price, update_product_category, update_product_quantity
+from handlers.ProductManagement import create_review
 import os
 import pandas as pd
 
@@ -56,6 +57,15 @@ def login():
 
     return render_template("login.html")
 
+@views.route('/logout')
+def logout():
+
+    # Clear the session variables
+    session.clear()
+
+    # Return the login page
+    return redirect(url_for("views.login"))
+
 
 # This view is used to enroll new users into the platform
 @views.route("/signup", methods=["GET", "POST"])
@@ -74,14 +84,6 @@ def signup():
             return render_template("signup.html", message="User already exists.")
 
         else:
-
-            # Set the 2FA signup code, username, email and password to the signup session
-            session["username_signup"] = username
-            session["email_signup"] = email
-            session["password_signup"] = password
-
-            # Create the dictionary with the data to send in the email
-            content = {"username": username, "email": email}
 
             # Create the user in the database
             create_user(username, password, email)
@@ -226,26 +228,26 @@ def update_account(id):
 
 # This view is used to get a image
 @views.route('/get_image/<path:filename>')
-def get_image(filename, cache_timeout=0):
+def get_image(filename):
 
     # Send the image
     path = "/".join(filename.split("/")[:-1])
     filename = filename.split("/")[-1]
-    return send_from_directory(path, filename, cache_timeout=0)
+    return send_from_directory(path, filename)
 
 
 @views.route('/catalog/<id>')
 def catalog(id):
     
         # Get the username and id from the session
-        username = session["username"]
-        admin = session["admin"]
+        name = session.get("username")
+        admin = session.get("admin")
 
         if admin:
-            return render_template("catalog_admin.html", username=username, id=id)
+            return render_template("catalog_admin.html", username=name, id=id)
         else:
             # Return the catalog page
-            return render_template("catalog.html", username=username, id=id)
+            return render_template("catalog.html", username=name, id=id)
 
 
 @views.route('/products')
@@ -294,7 +296,7 @@ def edit_product_by_id(id):
     product_quantity = request.form.get("productUnits")
     product_photo = request.files.get("productImage")
 
-    if verify_product_id_exists(product_id):
+    if verify_id_exists(product_id, "products"):
         if product_name != "":
             update_product_name(product_id, product_name)
         if product_description != "":
@@ -317,11 +319,51 @@ def product_quantities(id):
 
     products = get_all_products()
 
-
-    # Create a Pandas DataFrame from the list of dictionaries
-    #df = pd.DataFrame(products)
-
-    # Convert DataFrame to HTML table
-    #html_table = df.to_html(index=False, classes='table table-striped')
-
     return render_template('product_quantities.html', products=products)
+
+
+@views.route('/product/<int:product_id>')
+def product_page(product_id):
+    # Fetch the product details based on the product_id
+    # You can retrieve the product information from your data source
+
+    product = get_product_by_id(product_id)
+
+    id = session.get("id")
+
+    if id == None:
+        # Pass the product details to the template
+        return render_template('product_anonymous.html', productId=product_id, productPrice=product["price"], productName=product["name"])
+    else:
+        # Pass the product details to the template
+        return render_template('product.html', productId=product_id, productPrice=product["price"], productName=product["name"])
+
+
+@views.route('/get_reviews/<int:product_id>/')
+def get_reviews(product_id):
+
+    reviews = get_product_reviews(product_id)
+    for element in reviews:
+        element["username"] = search_user_by_id(element["user_id"])[1]
+
+    return jsonify(reviews)
+
+
+@views.route('/add_review/<product_id>', methods=['POST'])
+def add_review(product_id):
+
+    # Get the user's id and username from the session
+    user_id = session.get("id")
+    username = session.get("username")
+
+    # Get the review and rating from the request
+    review = request.form.get("userReview")
+    rating = request.form.get("rating")
+    
+
+    # Create the review
+    create_review(product_id, user_id, review, rating)
+
+    # Return a JSON response with the correct content type
+    response_data = {'message': 'Review added successfully'}
+    return jsonify(response_data), 200, {'Content-Type': 'application/json'}

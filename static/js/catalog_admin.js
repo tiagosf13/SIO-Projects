@@ -7,14 +7,22 @@ const stockSelect = document.getElementById('stockSelect');
 const priceSlider = document.getElementById('priceSlider');
 const minMaxPriceLabel = document.getElementById('minMaxPriceLabel');
 
-// Initialize the dual-handle slider
-noUiSlider.create(priceSlider, {
-    start: [0, 1000],
-    connect: true,
-    range: {
-        'min': 0,
-        'max': 1000
-    }
+// JavaScript to handle the logout button click
+document.getElementById('logoutButton').addEventListener('click', function() {
+    // Send a request to the logout route
+    fetch('/logout', {
+        method: 'GET',
+        credentials: 'same-origin',  // Include cookies in the request
+    })
+    .then(response => {
+        if (response.ok) {
+            // Redirect to the login or home page after successful logout
+            window.location.href = '/';  // Replace with your actual login or home page URL
+        }
+    })
+    .catch(error => {
+        console.error('Error logging out:', error);
+    });
 });
 
 // Function to update price labels based on the slider values
@@ -23,16 +31,6 @@ function updatePriceLabels() {
     minMaxPriceLabel.textContent = `Price Range: $${minPrice} - $${maxPrice}`;
 }
 
-// Event listener for the slider
-priceSlider.noUiSlider.on('update', () => {
-    updatePriceLabels();
-    displayProducts(); // Update products when the price range changes
-});
-
-// Initial update of price label
-updatePriceLabels();
-
-    // Function to display products
 function displayProducts() {
     const searchTerm = searchInput.value.toLowerCase();
     const selectedCategory = categoryFilter.value;
@@ -93,7 +91,7 @@ function displayProducts() {
                     <p>${product.description}</p>
                     <p style="color: red">ID: ${product.id}</p>
                     <p>Stock: 0</p>
-                    <p class="price">$${product.price}</p>
+                    <p class="price" style="color: green">$${product.price}</p>
                 `;
                 } else{
                     productCard.innerHTML += `
@@ -114,6 +112,42 @@ function displayProducts() {
 }
 
 
+// Function to initialize the dual-handle slider
+function initPriceSlider(maxProductPrice) {
+    noUiSlider.create(priceSlider, {
+        start: [0, maxProductPrice], // Set the initial range based on maxProductPrice
+        connect: true,
+        range: {
+            'min': 0,
+            'max': maxProductPrice
+        }
+    });
+
+    // Event listener for the slider
+    priceSlider.noUiSlider.on('update', () => {
+        updatePriceLabels();
+        displayProducts(); // Update products when the price range changes
+    });
+
+    // Initial update of price label
+    updatePriceLabels();
+}
+
+
+// Call displayProducts once when the page loads
+fetch('/products')
+    .then(response => response.json())
+    .then(data => {
+        const maxProductPrice = Math.max(...data.map(product => parseFloat(product.price)));
+        initPriceSlider(maxProductPrice); // Initialize the slider with maxProductPrice
+        displayProducts(); // Fetch and display products immediately
+    })
+    .catch(error => {
+        console.error('Error fetching products:', error);
+    });
+
+
+
 // Event listeners for filtering, searching, and sorting
 searchInput.addEventListener('input', displayProducts);
 categoryFilter.addEventListener('change', displayProducts);
@@ -121,8 +155,6 @@ sortOrderSelect.addEventListener('change', displayProducts);
 categoryFilter.addEventListener('change', displayProducts);
 stockSelect.addEventListener('change', displayProducts);
 
-// Initial product display
-displayProducts();
 
 function goToLogin() {
 

@@ -43,7 +43,7 @@
             <img src="{{ url_for('views.get_image', filename='database/accounts/' + id + '/' + id + '.png') }}" alt="Profile Photo">
             <span id="username">{{username}}</span>
         </a>
-        <button class="logout-button" id="profileLink" onclick="goToCatalogIndex()">Logout</button>
+        <button class="logout-button" id="logoutButton">Logout</button>
 
         <script type="text/javascript" src="{{url_for('static', filename='js/catalog.js')}}"></script>
     </body>

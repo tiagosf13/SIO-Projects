@@ -13,6 +13,7 @@ app.config['SECRET_KEY'] = 'LECI'
 if __name__ == '__main__':
     check_database_table_exists("users")
     check_database_table_exists("products")
+    check_database_table_exists("reviews")
     app.run(debug=True)
 
 """
@@ -40,6 +41,6 @@ if __name__ == '__main__':
         • View and track past orders
         • Reorder from order history
     7. Reviews and Ratings:
-        • Allow customers to rate and review products
-        • Display average ratings and reviews
+        • Allow customers to rate and review products ========================> DONE
+        • Display average ratings and reviews ================================> DONE
 """

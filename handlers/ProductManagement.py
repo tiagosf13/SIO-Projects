@@ -1,8 +1,8 @@
 import random, os, shutil
 from handlers.DataBaseCoordinator import db_query
 
-def verify_product_id_exists(id):
-    query = "SELECT * FROM products WHERE id = %s"
+def verify_id_exists(id, table):
+    query = "SELECT * FROM " + table + " WHERE id = %s"
     results = db_query(query, (id,))
 
     if len(results) == 0:
@@ -10,12 +10,12 @@ def verify_product_id_exists(id):
     else:
         return True
 
-def generate_random_product_id():
+def generate_random_product_id(table):
     # Generate a random ID
     random_id = random.randint(100000, 999999)
 
     # Check if the generated ID already exists, regenerate if necessary
-    while verify_product_id_exists(random_id):
+    while verify_id_exists(random_id, table):
         random_id = random.randint(100000, 999999)
 
     return random_id
@@ -39,7 +39,7 @@ def create_product_image(id, product_photo):
 
 def create_product(product_name, product_description, product_price, product_category, product_quantity, product_photo):
     # Generate a unique user id
-    id = str(generate_random_product_id())
+    id = str(generate_random_product_id("products"))
     
     # Add the user to the USER table
     db_query("INSERT INTO products (id, name, description, price, category, stock) VALUES (%s, %s, %s, %s, %s, %s);",
@@ -102,4 +102,12 @@ def update_product_quantity(id, quantity):
 
     query = "UPDATE products SET stock = %s WHERE id = %s"
     db_query(query, (quantity, id))
+    return True
+
+
+def create_review(id, user_id, review, rating):
+    review_id = str(generate_random_product_id("reviews"))
+
+    query = "INSERT INTO reviews (id, product_id, user_id, rating, review) VALUES (%s, %s, %s, %s, %s);"
+    db_query(query, (review_id, id, user_id, rating, review))
     return True
