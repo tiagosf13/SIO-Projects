@@ -82,12 +82,22 @@ function displayProducts() {
             
                 const productButtonsContainer = document.createElement('div'); // Container for cart buttons
                 productButtonsContainer.classList.add('product-buttons-container');
+
+                // add a quantity input
+                const quantityInput = document.createElement('input');
+                quantityInput.type = 'number';
+                quantityInput.min = 1;
+                quantityInput.max = product.stock;
+                quantityInput.value = 1;
+                quantityInput.classList.add('quantity-input');
             
                 const addToCartButton = document.createElement('button');
                 addToCartButton.innerHTML = '<i class="fas fa-cart-plus"></i>'; // Font Awesome icon for "Add to Cart"
                 addToCartButton.classList.add('cart-button');
                 addToCartButton.addEventListener('click', (event) => {
                     event.stopPropagation();
+                    product.quantity = 0;
+                    product.quantity = parseInt(quantityInput.value);
                     shoppingCart.addProduct(product);
                 });
             
@@ -96,10 +106,13 @@ function displayProducts() {
                 removeItemButton.classList.add('cart-button');
                 removeItemButton.addEventListener('click', (event) => {
                     event.stopPropagation();
+                    product.quantity = 0;
+                    product.quantity = parseInt(quantityInput.value);
                     shoppingCart.removeProduct(product);
                 });
             
                 // Append the cart buttons to the container
+                productButtonsContainer.appendChild(quantityInput);
                 productButtonsContainer.appendChild(addToCartButton);
                 productButtonsContainer.appendChild(removeItemButton);
             

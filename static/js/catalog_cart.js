@@ -40,7 +40,7 @@ const shoppingCart = {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ quantity: 1 }), // You can adjust the quantity here
+                body: JSON.stringify({ quantity: product.quantity }), // You can adjust the quantity here
             });
     
             if (response.ok) {
@@ -49,10 +49,15 @@ const shoppingCart = {
                 // Check if the product is already in the cart and update the quantity
                 const existingItem = this.items.find((item) => item.product.id === product.id);
                 if (existingItem) {
-                    existingItem.quantity++;
+                    console.log(existingItem.quantity);
+                    console.log(product.quantity);
+                    console.log("aqui")
+                    existingItem.quantity += product.quantity;
                 } else {
                     // If not in the cart, add it as a new item
-                    this.items.push({ product, quantity: 1 });
+                    console.log("aqui2")
+                    console.log(product.quantity);
+                    this.items.push({ product, quantity: product.quantity });
                 }
 
                 // Handle a successful response from the server
@@ -61,6 +66,7 @@ const shoppingCart = {
                 updateCartDisplay();
 
             } else {
+                product.quantity = 0;
                 // Handle errors or server responses here
                 console.error('Failed to add product to the cart.');
             }
@@ -77,7 +83,7 @@ const shoppingCart = {
                 headers: {
                 'Content-Type': 'application/json',
             },
-                body: JSON.stringify({ quantity: 1 }), // You can adjust the quantity here
+                body: JSON.stringify({ quantity: product.quantity }), // You can adjust the quantity here
             });
 
             if (response.ok) {
@@ -85,8 +91,8 @@ const shoppingCart = {
                 // Function to add a product to the cart
                 // Check if the product is already in the cart and update the quantity
                 const existingItem = this.items.find((item) => item.product.id === product.id);
-                if (existingItem && existingItem.quantity > 0) {
-                    existingItem.quantity--;
+                if (existingItem && existingItem.quantity > 0 && existingItem.quantity > product.quantity) {
+                    existingItem.quantity -= product.quantity;
                     console.log(existingItem.quantity);
                 } else {
                     this.items = this.items.filter((item) => item.product.id !== product.id); // Remove the item from the cart
@@ -96,6 +102,7 @@ const shoppingCart = {
                 console.log(`Removed product ${product.id} from the cart.`);
                 updateCartDisplay();
             } else {
+                product.quantity = 0;
                 // Handle errors or server responses here
                 console.error('Failed to remove product from the cart.');
             }

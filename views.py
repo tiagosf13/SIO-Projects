@@ -375,7 +375,7 @@ def add_item_to_cart(product_id):
     check_database_table_exists(username + "_cart")
     try:
         data = request.get_json()
-        quantity = data.get('quantity', 1)
+        quantity = data.get('quantity')
 
         user_cart = get_cart(username + "_cart")
 
@@ -383,6 +383,9 @@ def add_item_to_cart(product_id):
             for product in user_cart:
                 if product["product_id"] == product_id:
                     product_stock = get_product_by_id(product_id)["stock"]
+                    print("product_quantity: " + str(product["quantity"]))
+                    print("quantity: " + str(quantity))
+                    print("product_stock: " + str(product_stock))
                     if product["quantity"] + quantity > product_stock:
                         return jsonify({'error': 'Not enough stock.'}), 500
                     else:
@@ -392,7 +395,7 @@ def add_item_to_cart(product_id):
             return jsonify({'error': 'Product not found.'}), 500
         else:
             product_stock = get_product_by_id(product_id)["stock"]
-            if quantity > product_stock:
+            if quantity > product_stock or quantity < 0:
                 return jsonify({'error': 'Not enough stock.'}), 500
             else:
                 # You can add code here to update the user's cart in the database
@@ -410,17 +413,27 @@ def remove_item_from_cart(product_id):
     username = username.lower()
     try:
         data = request.get_json()
-        quantity = data.get('quantity', 1)
+        quantity = data.get('quantity')
 
-        # You can add code here to update the user's cart in the database
-        set_cart_item(username + "_cart", product_id, quantity, "remove")
         user_cart = get_cart(username + "_cart")
-        for element in user_cart:
-            if element["quantity"] == 0:
+
+        for product in user_cart:
+            if product["quantity"] == 0:
                 print("delete")
                 # Remove the product from the cart
                 query = "DELETE FROM " + username + "_cart WHERE product_id = %s"
-                db_query(query, (element["product_id"],))
+                db_query(query, (product["product_id"],))
+            elif product["product_id"] == product_id:
+                product_stock = get_product_by_id(product_id)["stock"]
+                print("product_quantity: " + str(product["quantity"]))
+                print("quantity: " + str(quantity))
+                print("product_stock: " + str(product_stock))
+                if product["quantity"] - quantity < 0:
+                    return jsonify({'error': 'Not enough stock.'}), 500
+                else:
+                    # You can add code here to update the user's cart in the database
+                    set_cart_item(username + "_cart", product_id, quantity, "remove")
+                    return jsonify({'message': 'Product added to the cart.'}), 200
 
         return jsonify({'message': 'Product added to the cart.'}), 200
     except Exception as e:
@@ -440,6 +453,8 @@ def get_cart_items():
             # Remove the product from the cart
             query = "DELETE FROM " + username + "_cart WHERE product_id = %s"
             db_query(query, (product["product_id"],))
+            #remove from user cart
+            user_cart.remove(product)
 
     return jsonify(user_cart)
 
