@@ -135,4 +135,3 @@ def set_cart_item(table_name, product_id, quantity, operation):
         query = "INSERT INTO "+table_name+" (product_id,quantity) VALUES (%s,%s);"
         db_query(query, (product_id,quantity))
         return True
-

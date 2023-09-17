@@ -4,7 +4,7 @@ from handlers.UserManagement import search_user_by_username, send_recovery_passw
 from handlers.UserManagement import update_username, search_user_by_id, update_email, update_password
 from handlers.UserManagement import get_user_role
 from handlers.Verifiers import check_username_exists, check_email_exists
-from handlers.Retrievers import get_all_products, get_product_by_id, get_product_reviews, get_cart
+from handlers.Retrievers import get_all_products, get_product_by_id, get_product_reviews, get_cart, verify_product_id_exists
 from handlers.ProductManagement import create_product, remove_product, verify_id_exists, update_product_name, create_product_image
 from handlers.ProductManagement import update_product_description, update_product_price, update_product_category, update_product_quantity
 from handlers.ProductManagement import create_review, set_cart_item
@@ -355,7 +355,6 @@ def add_review(product_id):
 
     # Get the user's id and username from the session
     user_id = session.get("id")
-    username = session.get("username")
 
     # Get the review and rating from the request
     review = request.form.get("userReview")
@@ -384,10 +383,6 @@ def add_item_to_cart(product_id):
             for product in user_cart:
                 if product["product_id"] == product_id:
                     product_stock = get_product_by_id(product_id)["stock"]
-                    print("stock")
-                    print(product_stock)
-                    print("pedido")
-                    print(product["quantity"] + quantity)
                     if product["quantity"] + quantity > product_stock:
                         return jsonify({'error': 'Not enough stock.'}), 500
                     else:
@@ -424,7 +419,7 @@ def remove_item_from_cart(product_id):
             if element["quantity"] == 0:
                 print("delete")
                 # Remove the product from the cart
-                query = "DELETE FROM " + username.lower() + "_cart WHERE product_id = %s"
+                query = "DELETE FROM " + username + "_cart WHERE product_id = %s"
                 db_query(query, (element["product_id"],))
 
         return jsonify({'message': 'Product added to the cart.'}), 200
@@ -439,6 +434,12 @@ def get_cart_items():
     username = session.get("username").lower()
     check_database_table_exists(username + "_cart")
     user_cart = get_cart(session.get("username").lower() + "_cart")
+
+    for product in user_cart:
+        if not verify_product_id_exists(product["product_id"]) or product["quantity"] == 0 or product["quantity"] > get_product_by_id(product["product_id"])["stock"]:
+            # Remove the product from the cart
+            query = "DELETE FROM " + username + "_cart WHERE product_id = %s"
+            db_query(query, (product["product_id"],))
 
     return jsonify(user_cart)
 

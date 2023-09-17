@@ -50,6 +50,10 @@ def get_product_by_id(id):
 
 def get_product_reviews(product_id):
 
+    # check if the product exists
+    if not verify_product_id_exists(product_id):
+        return None
+
     query = "SELECT * FROM reviews WHERE product_id = %s"
     results = db_query(query, (product_id,))
 
@@ -74,10 +78,15 @@ def get_cart(username_cart):
     cart = []
 
     for element in result:
-        cart.append({
-            "product_id": element[0],
-            "quantity": element[1],
-            "name" : get_product_by_id(element[0])["name"],
-            "price" : get_product_by_id(element[0])["price"]
-        })
+        if not verify_product_id_exists(element[0]):
+            # remove the product from the cart
+            query = "DELETE FROM " + username_cart + " WHERE product_id = %s"
+            db_query(query, (element[0],))
+        else:
+            cart.append({
+                "product_id": element[0],
+                "quantity": element[1],
+                "name" : get_product_by_id(element[0])["name"],
+                "price" : get_product_by_id(element[0])["price"]
+            })
     return cart
