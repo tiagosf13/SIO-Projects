@@ -4,10 +4,11 @@ from handlers.UserManagement import search_user_by_username, send_recovery_passw
 from handlers.UserManagement import update_username, search_user_by_id, update_email, update_password
 from handlers.UserManagement import get_user_role
 from handlers.Verifiers import check_username_exists, check_email_exists
-from handlers.Retrievers import get_all_products, get_product_by_id, get_product_reviews
+from handlers.Retrievers import get_all_products, get_product_by_id, get_product_reviews, get_cart
 from handlers.ProductManagement import create_product, remove_product, verify_id_exists, update_product_name, create_product_image
 from handlers.ProductManagement import update_product_description, update_product_price, update_product_category, update_product_quantity
-from handlers.ProductManagement import create_review
+from handlers.ProductManagement import create_review, set_cart_item
+from handlers.DataBaseCoordinator import check_database_table_exists, db_query
 import os
 import pandas as pd
 
@@ -244,10 +245,10 @@ def catalog(id):
         admin = session.get("admin")
 
         if admin:
-            return render_template("catalog_admin.html", username=name, id=id)
+            return render_template("catalog_admin.html", username=name, id=id, admin=admin)
         else:
             # Return the catalog page
-            return render_template("catalog.html", username=name, id=id)
+            return render_template("catalog.html", username=name, id=id, admin=admin)
 
 
 @views.route('/products')
@@ -333,10 +334,10 @@ def product_page(product_id):
 
     if id == None:
         # Pass the product details to the template
-        return render_template('product_anonymous.html', productId=product_id, productPrice=product["price"], productName=product["name"])
+        return render_template('product_anonymous.html', productId=product_id, productPrice=product["price"], productName=product["name"], productDescription = product["description"])
     else:
         # Pass the product details to the template
-        return render_template('product.html', productId=product_id, productPrice=product["price"], productName=product["name"])
+        return render_template('product.html', productId=product_id, productPrice=product["price"], productName=product["name"], productDescription = product["description"])
 
 
 @views.route('/get_reviews/<int:product_id>/')
@@ -367,3 +368,87 @@ def add_review(product_id):
     # Return a JSON response with the correct content type
     response_data = {'message': 'Review added successfully'}
     return jsonify(response_data), 200, {'Content-Type': 'application/json'}
+
+
+@views.route('/add_item_cart/<int:product_id>', methods=['POST'])
+def add_item_to_cart(product_id):
+    username = session.get("username").lower()
+    check_database_table_exists(username + "_cart")
+    try:
+        data = request.get_json()
+        quantity = data.get('quantity', 1)
+
+        user_cart = get_cart(username + "_cart")
+
+        if len(user_cart) != 0:
+            for product in user_cart:
+                if product["product_id"] == product_id:
+                    product_stock = get_product_by_id(product_id)["stock"]
+                    print("stock")
+                    print(product_stock)
+                    print("pedido")
+                    print(product["quantity"] + quantity)
+                    if product["quantity"] + quantity > product_stock:
+                        return jsonify({'error': 'Not enough stock.'}), 500
+                    else:
+                        # You can add code here to update the user's cart in the database
+                        set_cart_item(username + "_cart", product_id, quantity, "add")
+                        return jsonify({'message': 'Product added to the cart.'}), 200
+            return jsonify({'error': 'Product not found.'}), 500
+        else:
+            product_stock = get_product_by_id(product_id)["stock"]
+            if quantity > product_stock:
+                return jsonify({'error': 'Not enough stock.'}), 500
+            else:
+                # You can add code here to update the user's cart in the database
+                set_cart_item(username + "_cart", product_id, quantity, "add")
+                return jsonify({'message': 'Product added to the cart.'}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 500
+    
+
+
+@views.route('/remove_item_cart/<int:product_id>', methods=['POST'])
+def remove_item_from_cart(product_id):
+    username = session.get("username")
+    username = username.lower()
+    try:
+        data = request.get_json()
+        quantity = data.get('quantity', 1)
+
+        # You can add code here to update the user's cart in the database
+        set_cart_item(username + "_cart", product_id, quantity, "remove")
+        user_cart = get_cart(username + "_cart")
+        for element in user_cart:
+            if element["quantity"] == 0:
+                print("delete")
+                # Remove the product from the cart
+                query = "DELETE FROM " + username.lower() + "_cart WHERE product_id = %s"
+                db_query(query, (element["product_id"],))
+
+        return jsonify({'message': 'Product added to the cart.'}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 500
+
+
+
+@views.route('/get_cart_items/', methods=['GET'])
+def get_cart_items():
+    username = session.get("username").lower()
+    check_database_table_exists(username + "_cart")
+    user_cart = get_cart(session.get("username").lower() + "_cart")
+
+    return jsonify(user_cart)
+
+
+@views.route('/remove_all_items_cart', methods=['POST'])
+def remove_all_items_cart():
+    username = session.get("username").lower()
+
+    # Remove all the products from the cart
+    query = "DELETE FROM " + username.lower() + "_cart"
+    db_query(query)
+
+    return jsonify({'message': 'Cart cleared.'}), 200

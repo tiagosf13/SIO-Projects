@@ -44,6 +44,7 @@ body {
 .product-container {
     display: flex;
     justify-content: center;
+    flex-direction: column; /* Stack its children vertically */
     align-items: center;
     margin-top: 20px; /* Optional: Add some top margin for separation from header */
 }
@@ -85,6 +86,17 @@ body {
     background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background for readability */
     font-size: small;
     background-color: transparent;
+}
+
+.product-description {
+    height: auto; /* Set the height of the description */
+    overflow: hidden; /* Hide the overflow */
+    bottom: 0;
+    font-size: small;
+}
+
+.product-content {
+    overflow: auto;
 }
 
 .product-card h3,
@@ -187,3 +199,128 @@ body {
 .logout-button:hover {
     background-color: red;
 }
+
+
+/* Add styles to the cart buttons */
+.cart-button {
+    background-color: #007bff;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    margin-right: 10px;
+    margin-left: 10px;
+}
+
+.cart-button:hover {
+    background-color: #0056b3;
+}
+
+
+/* Add styles to the product buttons */
+.product-buttons {
+    display: flex;
+    flex-direction: column; /* Stack buttons vertically */
+    align-items: center; /* Center buttons horizontally within the container */
+    margin-top: 10px; /* Add some top margin to separate them from the product content */
+}
+
+/* Add styles to the cart buttons container */
+.cart-buttons-container {
+    display: flex;
+    justify-content: center; /* Center buttons horizontally within the container */
+    margin-top: 10px; /* Add some top margin to separate them from the product content */
+}
+
+
+/* CSS for product buttons container */
+.product-buttons-container {
+    display: flex;
+    justify-content: space-between; /* Add space between buttons */
+    align-items: center; /* Center items vertically */
+}
+
+
+
+.list-group-item  {
+    background-color: #f5f5f5;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 10px 0;
+    display: block; /* Change to block to stack them vertically */
+    max-width: fit-content; /* Limit the maximum width as a percentage of the parent container */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    clear: both; /* Ensure proper vertical stacking */
+    background-color: greenyellow;
+    align-items: start; /* Align content at the start */
+    text-align: start; /* Left-align text within the balloons */
+}
+
+/* Existing styles remain unchanged */
+
+/* Styles for the shopping cart */
+.shopping-cart {
+    position: fixed;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    background-color: #f4f4f4;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    max-width: 300px;
+}
+
+/* Ensure the product list is positioned to the left of the shopping cart */
+.product-list {
+    float: left;
+    width: calc(100% - 320px); /* Adjust the width based on your shopping cart width */
+    /* The remaining space is calculated based on the width of the shopping cart */
+    /* This ensures the product list takes up all available space to the left of the cart */
+}
+
+/* Rest of your CSS styles */
+
+
+/* Rest of your shopping cart styles */
+
+
+.shopping-cart h2 {
+    font-size: 24px; /* Heading font size */
+    margin-bottom: 15px; /* Spacing below the heading */
+}
+
+#cartList {
+    list-style-type: none; /* Remove list bullets */
+    padding: 0; /* Remove default padding */
+}
+
+#cartList li {
+    margin-bottom: 10px; /* Spacing between cart items */
+    font-size: 16px; /* Cart item font size */
+}
+
+#cartTotal {
+    font-size: 18px; /* Total font size */
+    font-weight: bold; /* Make the total bold */
+    margin-top: 20px; /* Spacing above the total */
+}
+
+#removeAllItems {
+    background-color: #ff6347; /* Button background color */
+    color: white; /* Button text color */
+    border: none; /* Remove button border */
+    padding: 10px 15px; /* Button padding */
+    font-size: 16px; /* Button font size */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Add pointer cursor on hover */
+    margin-top: 15px; /* Spacing above the button */
+}
+
+#removeAllItems:hover {
+    background-color: #ff4d35; /* Button background color on hover */
+}
+

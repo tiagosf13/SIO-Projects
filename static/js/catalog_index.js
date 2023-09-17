@@ -13,13 +13,10 @@ function updatePriceLabels() {
 }
 
 
-
 // Function to display products
 function displayProducts() {
     const searchTerm = searchInput.value.toLowerCase();
     const selectedCategory = categoryFilter.value;
-    // Get the product list container
-    const productList = document.querySelector('.product-list');
     
 
     // Fetch products from Flask route
@@ -57,9 +54,6 @@ function displayProducts() {
             productContainer.innerHTML = '';
 
             filteredProducts.forEach(product => {
-                const productContainer = document.createElement('div');
-                productContainer.classList.add('product-container');
-            
                 const productCard = document.createElement('div');
                 productCard.classList.add('product-card');
             
@@ -72,44 +66,14 @@ function displayProducts() {
                 productCard.appendChild(imgElement);
             
                 productCard.innerHTML += `
-                    <div class="product-content">
-                        <h3>${product.name}</h3>
-                        <p class="product-description">${product.description}</p>
-                        <p style="color: red">ID: ${product.id}</p>
-                        <p class="price" style="color: green">${product.price} €</p>
-                    </div>
+                <h3>${product.name}</h3>
+                <p class="product-details">${product.description}</p>
+                <p style="color: red">ID: ${product.id}</p>
+                <p class="price" style="color: green">${product.price} €</p>
                 `;
             
-                const productButtonsContainer = document.createElement('div'); // Container for cart buttons
-                productButtonsContainer.classList.add('product-buttons-container');
-            
-                const addToCartButton = document.createElement('button');
-                addToCartButton.innerHTML = '<i class="fas fa-cart-plus"></i>'; // Font Awesome icon for "Add to Cart"
-                addToCartButton.classList.add('cart-button');
-                addToCartButton.addEventListener('click', (event) => {
-                    event.stopPropagation();
-                    shoppingCart.addProduct(product);
-                });
-            
-                const removeItemButton = document.createElement('button');
-                removeItemButton.innerHTML = '<i class="fas fa-trash"></i>'; // Font Awesome icon for "Remove from Cart"
-                removeItemButton.classList.add('cart-button');
-                removeItemButton.addEventListener('click', (event) => {
-                    event.stopPropagation();
-                    shoppingCart.removeProduct(product);
-                });
-            
-                // Append the cart buttons to the container
-                productButtonsContainer.appendChild(addToCartButton);
-                productButtonsContainer.appendChild(removeItemButton);
-            
-                // Append the product card and cart buttons container to the product container
                 productContainer.appendChild(productCard);
-                productContainer.appendChild(productButtonsContainer);
-            
-                // Append the product container to the product list
-                productList.appendChild(productContainer);
-            });                                  
+            });            
         })
         .catch(error => {
             console.error('Error fetching products:', error);
@@ -189,8 +153,4 @@ document.getElementById('logoutButton').addEventListener('click', function() {
         console.error('Error logging out:', error);
     });
 });
-
-
-
-
 

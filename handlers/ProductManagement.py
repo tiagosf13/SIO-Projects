@@ -111,3 +111,28 @@ def create_review(id, user_id, review, rating):
     query = "INSERT INTO reviews (id, product_id, user_id, rating, review) VALUES (%s, %s, %s, %s, %s);"
     db_query(query, (review_id, id, user_id, rating, review))
     return True
+
+
+def set_cart_item(table_name, product_id, quantity, operation):
+
+    #check if the product is already in the cart
+    query = "SELECT * FROM "+table_name+" WHERE product_id = %s"
+    results = db_query(query, (product_id,))
+    if operation == "remove" and len(results) == 0:
+        return False
+    print(operation)
+
+    if len(results) != 0:
+        #update the quantity
+        if operation == "add":
+            query = "UPDATE "+table_name+" SET quantity = quantity + %s WHERE product_id = %s"
+        else:
+            query = "UPDATE "+table_name+" SET quantity = quantity - %s WHERE product_id = %s"
+        db_query(query, (quantity, product_id))
+        return True
+    else:
+        #add the product to the cart
+        query = "INSERT INTO "+table_name+" (product_id,quantity) VALUES (%s,%s);"
+        db_query(query, (product_id,quantity))
+        return True
+

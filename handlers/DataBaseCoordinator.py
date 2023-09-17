@@ -69,10 +69,8 @@ def db_query(query, params=None):
     
 
 def check_database_table_exists(table_name):
-    
         # Construct the SQL query
         query = "SELECT EXISTS(SELECT * FROM information_schema.tables WHERE table_name=%s)"
-    
         # Execute the query and get the result
         result = db_query(query, (table_name,))
         if not result[0][0]:
@@ -81,8 +79,10 @@ def check_database_table_exists(table_name):
                 query = "CREATE TABLE users (id SERIAL PRIMARY KEY, username VARCHAR(255), password VARCHAR(255), email VARCHAR(255), admin BOOLEAN)"
             elif table_name == "products":
                 query = "CREATE TABLE products (id SERIAL PRIMARY KEY, name VARCHAR(255), description VARCHAR(255), price VARCHAR(255), category VARCHAR(255), stock INTEGER)"
-            else:
+            elif table_name == "reviews":
                 query = "CREATE TABLE reviews (id SERIAL PRIMARY KEY, product_id INTEGER, user_id INTEGER, rating INTEGER, review VARCHAR(255))"
+            elif "_cart" in table_name:
+                query = f"CREATE TABLE {table_name} (product_id SERIAL PRIMARY KEY, quantity INTEGER)"
 
             # Execute the query
             db_query(query)

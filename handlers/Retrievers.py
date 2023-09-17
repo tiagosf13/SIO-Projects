@@ -65,3 +65,19 @@ def get_product_reviews(product_id):
         reviews.append(review)
 
     return reviews
+
+
+def get_cart(username_cart):
+    query = "SELECT * FROM " + username_cart
+    result = db_query(query, (username_cart,))
+
+    cart = []
+
+    for element in result:
+        cart.append({
+            "product_id": element[0],
+            "quantity": element[1],
+            "name" : get_product_by_id(element[0])["name"],
+            "price" : get_product_by_id(element[0])["price"]
+        })
+    return cart

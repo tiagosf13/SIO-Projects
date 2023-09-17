@@ -27,9 +27,9 @@ if __name__ == '__main__':
         • Product categories and filters =====================================> DONE
         • Product search functionality =======================================> DONE
     3. Shopping Cart:
-        • Cart management (add, remove, update items)
-        • Cart total calculation
-        • Save cart for later or wish list
+        • Cart management (add, remove, update items) ========================> DONE
+        • Cart total calculation =============================================> DONE
+        • Save cart for later or wish list ===================================> DONE
     4. Checkout Process:
         • Shipping and billing information collection
         • Payment processing (credit card, PayPal, etc.)
