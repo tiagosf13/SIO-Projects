@@ -377,6 +377,9 @@ def add_item_to_cart(product_id):
         data = request.get_json()
         quantity = data.get('quantity')
 
+        if quantity <= 0:
+            return jsonify({'error': 'Invalid quantity.'}), 500
+
         user_cart = get_cart(username + "_cart")
 
         for product in user_cart:
@@ -413,7 +416,7 @@ def remove_item_from_cart(product_id):
         data = request.get_json()
         quantity = data.get('quantity')
 
-        if check_product_in_cart(username + "_cart", product_id) == False:
+        if check_product_in_cart(username + "_cart", product_id) == False or quantity <= 0:
             return jsonify({'error': 'Product not in cart.'}), 500
         else:
             user_cart = get_cart(username + "_cart")
