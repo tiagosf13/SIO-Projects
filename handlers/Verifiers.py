@@ -17,3 +17,12 @@ def check_email_exists(email):
 
     # Return the boolean
     return result[0][0]
+
+
+def check_product_in_cart(tablename, product_id):
+    
+    # Execute the query to check if the product exists in the cart
+    result = db_query("SELECT exists(select 1 from {} where product_id=%s)".format(tablename), (product_id,))
+
+    # Return the boolean
+    return result[0][0]

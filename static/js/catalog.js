@@ -98,6 +98,9 @@ function displayProducts() {
                     event.stopPropagation();
                     product.quantity = 0;
                     product.quantity = parseInt(quantityInput.value);
+                    if (product.quantity < 0) {
+                        product.quantity = 0;
+                    }
                     shoppingCart.addProduct(product);
                 });
             
@@ -108,6 +111,9 @@ function displayProducts() {
                     event.stopPropagation();
                     product.quantity = 0;
                     product.quantity = parseInt(quantityInput.value);
+                    if (product.quantity < 0) {
+                        product.quantity = 0;
+                    }
                     shoppingCart.removeProduct(product);
                 });
             
