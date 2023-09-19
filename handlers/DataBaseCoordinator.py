@@ -3,14 +3,16 @@ import json
 import psycopg2
 
 
-
 def read_json(filename):
 
-    # Read the file and load its content as JSON
-    with open(os.getcwd() + filename, "r", encoding="utf8") as file:
-        data = json.load(file)
-    file.close()
 
+    # Get the current working directory
+    current_directory = os.path.dirname(os.path.abspath(__file__)).split("/handlers")[0]
+
+    full_file_path = current_directory + filename
+
+    with open(full_file_path, "r", encoding="utf8") as file:
+        data = json.load(file)
     return data
 
 

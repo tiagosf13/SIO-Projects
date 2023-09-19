@@ -20,10 +20,16 @@ views = Blueprint('views', __name__)
 
 # Routes
 
+
+@views.route('/static/<path:filename>')
+def serve_static(filename):
+    return views.send_static_file(filename)
+
+
 # This route is used to show the home page
 @views.route('/', methods=['GET'])
 def index():
-    return render_template('catalog_index.html')
+    return render_template('index.html')
 
 
 # This route is used to perform the login
@@ -176,7 +182,7 @@ def check_email():
 def update_account(id):
 
     # Set the user's account image file path
-    file_path = os.getcwd()+f"/database/accounts/{id}/{id}.png"
+    file_path = os.getcwd()+f"/database/accounts/{id}.png"
 
     # Get the new uploaded user's account image
     profile_photo = request.files.get("profile_photo")

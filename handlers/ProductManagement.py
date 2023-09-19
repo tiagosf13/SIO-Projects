@@ -65,7 +65,8 @@ def remove_product(id):
     user_directory = os.path.join(directory, "catalog")
 
     # Create the user's directory and any missing parent directories
-    os.remove(os.path.join(user_directory, f"{id}.png"))
+    if os.path.exists(os.path.join(user_directory, f"{id}.png")):
+        os.remove(os.path.join(user_directory, f"{id}.png"))
 
     return True
 

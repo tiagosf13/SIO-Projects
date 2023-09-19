@@ -10,7 +10,7 @@
 </head>
 <body style="margin-top: 7%;">
 <h2>Account Settings</h2>
-<img src="{{ url_for('views.get_image', filename='database/accounts/' + id + '/' + id + '.png') }}" alt="Profile Photo" class="profile-image" style="margin-top: 70px;">
+<img src="{{ url_for('views.get_image', filename='database/accounts/' + id + '.png') }}" alt="Profile Photo" class="profile-image" style="margin-top: 70px;">
 <h2>{{username}}</h2>
     <form action="/update_account/{{id}}" method="post" enctype="multipart/form-data" onsubmit="return validateForm();" style="margin-top: 70px;">
         <div class="container">

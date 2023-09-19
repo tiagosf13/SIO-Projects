@@ -24,7 +24,7 @@
                     </li>
                     <li><button class="logout-button" id="logoutButton">Logout</button></li>
                     <li><a href="/profile/{{username}}" id="profileLink">
-                        <img src="{{ url_for('views.get_image', filename='database/accounts/' + id + '/' + id + '.png') }}" alt="Profile Photo">
+                        <img src="{{ url_for('views.get_image', filename='database/accounts/' + id + '.png') }}" alt="Profile Photo">
                         <span id="username">{{username}}</span>
                     </a></li>
                     
