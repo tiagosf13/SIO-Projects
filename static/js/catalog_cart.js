@@ -1,3 +1,10 @@
+document.getElementById('checkoutButton').addEventListener('click', function(event) {
+
+    event.stopPropagation(); // Stop the click event from propagating to the product card
+    window.location.href = '/checkout';
+
+});
+
 function updateCartDisplay() {
     const cartTotal = document.getElementById('cartTotal');
     const cartList = document.getElementById('cartList');
@@ -21,6 +28,7 @@ function updateCartDisplay() {
             });
             // Update the total price based on the server response
             cartTotal.innerText = `Total: ${total.toFixed(2)} €`;
+
         })
         .catch(error => {
             console.error('Error fetching cart items:', error);
@@ -30,8 +38,7 @@ function updateCartDisplay() {
 
 
 const shoppingCart = {
-    items: [], // Array to store cart items
-    addProduct: async function (product) {   
+    addProduct: async function (product) {
     
         // Make an AJAX request to the server to add the product to the user's cart
         try {
@@ -44,24 +51,6 @@ const shoppingCart = {
             });
     
             if (response.ok) {
-
-                // Function to add a product to the cart
-                // Check if the product is already in the cart and update the quantity
-                /* const existingItem = this.items.find((item) => item.product.id === product.id);
-                if (existingItem) {
-                    console.log(existingItem.quantity);
-                    console.log(product.quantity);
-                    console.log("aqui")
-                    existingItem.quantity += product.quantity;
-                } else {
-                    // If not in the cart, add it as a new item
-                    console.log("aqui2")
-                    console.log(product.quantity);
-                    this.items.push({ product, quantity: product.quantity });
-                } */
-
-                // Handle a successful response from the server
-                console.log(`Added product ${product.id} to the cart.`);
                 // Call a function to update the cart display
                 updateCartDisplay();
 
@@ -88,18 +77,6 @@ const shoppingCart = {
 
             if (response.ok) {
 
-                // Function to add a product to the cart
-                // Check if the product is already in the cart and update the quantity
-                /* const existingItem = this.items.find((item) => item.product.id === product.id);
-                if (existingItem && existingItem.quantity > 0 && existingItem.quantity > product.quantity) {
-                    existingItem.quantity -= product.quantity;
-                    console.log(existingItem.quantity);
-                } else {
-                    this.items = this.items.filter((item) => item.product.id !== product.id); // Remove the item from the cart
-                } */
-
-                // Handle a successful response from the server
-                console.log(`Removed product ${product.id} from the cart.`);
                 updateCartDisplay();
             } else {
                 product.quantity = 0;
@@ -111,8 +88,6 @@ const shoppingCart = {
         }
     },
     removeAllProducts: async function () {
-        //remove all products from the cart
-        this.items = [];
         // Make an AJAX request to the server to remove the product from the user's cart
         try {
             const response = await fetch(`/remove_all_items_cart`, {
@@ -123,8 +98,10 @@ const shoppingCart = {
             });
 
             if (response.ok) {
-                // Handle a successful response from the server
-                console.log(`Removed all products from the cart.`);
+                //clear the shopping cart
+                if (window.location.href.includes("checkout")) {
+                    window.location.href = '/catalog';
+                }
                 updateCartDisplay();
             } else {
                 // Handle errors or server responses here
@@ -163,17 +140,5 @@ productContainer.addEventListener('click', (event) => {
             name: productName,
             price: productPrice,
         });
-    }
-
-    if (event.target.classList.contains('remove-from-cart-button')) {
-        // Get the product information associated with the clicked button
-        const productCard = event.target.closest('.product-card');
-        const productId = productCard.querySelector('p[style="color: red"]').textContent.split('ID: ')[1];
-
-        // Check if the cart is empty before trying to remove
-        if (shoppingCart.items.length > 0) {
-            // Remove the product from the cart by passing only the productId
-            shoppingCart.removeProduct(productId);
-        }
     }
 });

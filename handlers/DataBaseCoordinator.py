@@ -6,8 +6,12 @@ import psycopg2
 def read_json(filename):
 
 
-    # Get the current working directory
-    current_directory = os.path.dirname(os.path.abspath(__file__)).split("/handlers")[0]
+    if os.name == "nt":
+        # Get the current working directory
+        current_directory = os.path.dirname(os.path.abspath(__file__)).split("\\handlers")[0]
+    else:
+        # Get the current working directory
+        current_directory = os.path.dirname(os.path.abspath(__file__)).split("/handlers")[0]
 
     full_file_path = current_directory + filename
 
@@ -85,6 +89,9 @@ def check_database_table_exists(table_name):
                 query = "CREATE TABLE reviews (id SERIAL PRIMARY KEY, product_id INTEGER, user_id INTEGER, rating INTEGER, review VARCHAR(255))"
             elif "_cart" in table_name:
                 query = f"CREATE TABLE {table_name} (product_id SERIAL PRIMARY KEY, quantity INTEGER)"
-
+            elif "all_orders" in table_name:
+                query = "CREATE TABLE all_orders (id SERIAL PRIMARY KEY, user_id INTEGER, order_date VARCHAR(255))"
+            else:
+                query = f"CREATE TABLE {table_name} (id SERIAL PRIMARY KEY, products JSON, total_price VARCHAR(255), shipping_address VARCHAR(255), order_date VARCHAR(255))"
             # Execute the query
             db_query(query)

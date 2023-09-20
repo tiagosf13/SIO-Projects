@@ -14,7 +14,8 @@ if __name__ == '__main__':
     check_database_table_exists("users")
     check_database_table_exists("products")
     check_database_table_exists("reviews")
-    app.run(debug=True)
+    check_database_table_exists("all_orders")
+    app.run(debug=True, host='127.0.0.1', port=5000)
 
 """
     1. User Management: 
@@ -31,9 +32,9 @@ if __name__ == '__main__':
         • Cart total calculation =============================================> DONE
         • Save cart for later or wish list ===================================> DONE
     4. Checkout Process:
-        • Shipping and billing information collection
-        • Payment processing (credit card, PayPal, etc.)
-        • Order confirmation and receipt generation
+        • Shipping and billing information collection ========================> DONE
+        • Payment processing (credit card, PayPal, etc.) =====================> DONE
+        • Order confirmation and receipt generation ==========================> DONE
     5. Inventory Management:
         • Tracking product availability (in-stock, out-of-stock) =============> DONE
         • Managing product quantities ========================================> DONE

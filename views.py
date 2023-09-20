@@ -1,16 +1,20 @@
+import tempfile
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for, send_from_directory, send_file
-from handlers.UserManagement import search_user_by_email, validate_login, get_id_by_username
+from handlers.UserManagement import search_user_by_email, validate_login, get_id_by_username, check_order_id_existence
 from handlers.UserManagement import search_user_by_username, send_recovery_password, create_user
 from handlers.UserManagement import update_username, search_user_by_id, update_email, update_password
 from handlers.UserManagement import get_user_role
 from handlers.Verifiers import check_username_exists, check_email_exists, check_product_in_cart
-from handlers.Retrievers import get_all_products, get_product_by_id, get_product_reviews, get_cart, verify_product_id_exists
-from handlers.ProductManagement import create_product, remove_product, verify_id_exists, update_product_name, create_product_image
-from handlers.ProductManagement import update_product_description, update_product_price, update_product_category, update_product_quantity
-from handlers.ProductManagement import create_review, set_cart_item
+from handlers.Retrievers import get_all_products, get_product_by_id, get_product_reviews, get_cart, verify_product_id_exists, get_user_email
+from handlers.ProductManagement import create_product, remove_product, verify_id_exists, update_product_name, create_product_image, register_order
+from handlers.ProductManagement import update_product_description, update_product_price, update_product_category, update_product_quantity   
+from handlers.ProductManagement import create_review, set_cart_item, update_product_after_order
 from handlers.DataBaseCoordinator import check_database_table_exists, db_query
+from handlers.UserManagement import compose_email_body
+from handlers.EmailHandler import send_email_with_attachment, sql_to_pdf
 import os
 import pandas as pd
+import json
 
 
 
@@ -335,15 +339,18 @@ def product_page(product_id):
     # You can retrieve the product information from your data source
 
     product = get_product_by_id(product_id)
+    admin = session.get("admin")
 
     id = session.get("id")
 
     if id == None:
         # Pass the product details to the template
-        return render_template('product_anonymous.html', productId=product_id, productPrice=product["price"], productName=product["name"], productDescription = product["description"])
+        return render_template('product_anonymous.html', product = product)
+    elif admin:
+        return render_template('product_admin.html', product = product)
     else:
         # Pass the product details to the template
-        return render_template('product.html', productId=product_id, productPrice=product["price"], productName=product["name"], productDescription = product["description"])
+        return render_template('product.html', product = product)
 
 
 @views.route('/get_reviews/<int:product_id>/')
@@ -361,6 +368,7 @@ def add_review(product_id):
 
     # Get the user's id and username from the session
     user_id = session.get("id")
+    username = session.get("username")
 
     # Get the review and rating from the request
     review = request.form.get("userReview")
@@ -371,7 +379,7 @@ def add_review(product_id):
     create_review(product_id, user_id, review, rating)
 
     # Return a JSON response with the correct content type
-    response_data = {'message': 'Review added successfully'}
+    response_data = {'message': 'Review added successfully', "username": username}
     return jsonify(response_data), 200, {'Content-Type': 'application/json'}
 
 
@@ -391,9 +399,6 @@ def add_item_to_cart(product_id):
         for product in user_cart:
             if product["product_id"] == product_id:
                 product_stock = get_product_by_id(product_id)["stock"]
-                print("product_quantity: " + str(product["quantity"]))
-                print("quantity: " + str(quantity))
-                print("product_stock: " + str(product_stock))
                 if product["quantity"] + quantity > product_stock:
                     return jsonify({'error': 'Not enough stock.'}), 500
                 else:
@@ -429,15 +434,11 @@ def remove_item_from_cart(product_id):
 
             for product in user_cart:
                 if product["quantity"] == 0:
-                    print("delete")
                     # Remove the product from the cart
                     query = "DELETE FROM " + username + "_cart WHERE product_id = %s"
                     db_query(query, (product["product_id"],))
                 elif product["product_id"] == product_id:
                     product_stock = get_product_by_id(product_id)["stock"]
-                    print("product_quantity: " + str(product["quantity"]))
-                    print("quantity: " + str(quantity))
-                    print("product_stock: " + str(product_stock))
                     if product["quantity"] - quantity < 0:
                         return jsonify({'error': 'Not enough stock.'}), 500
                     else:
@@ -478,3 +479,64 @@ def remove_all_items_cart():
     db_query(query)
 
     return jsonify({'message': 'Cart cleared.'}), 200
+
+
+@views.route('/checkout', methods=['POST', 'GET'])
+def checkout():
+    username = session.get("username").lower()
+    user_id = session.get("id")
+    if request.method == 'POST':
+        # Get form data from the request
+        data = request.get_json()
+        # get the products from the cart
+        products = get_cart(username + "_cart")
+
+        for element in products:
+            element["price"] = float(element["price"])
+            element["quantity"] = int(element["quantity"])
+
+        # Create an order object (you can customize this based on your needs)
+        order_details = {
+            'first_name': data['firstName'],
+            'last_name': data['lastName'],
+            'shipping_address': data['address'],
+            'credit_card': data['creditCard'],
+            'expiration_date': data['expirationDate'],
+            'cvv': data['cvv']
+        }
+
+        # Add the order to the database
+        response, order_id = register_order(username, user_id, order_details, products)
+
+        if response:
+            update_product_after_order(products)
+            body = compose_email_body(products, order_id)
+            to = get_user_email(user_id)
+
+            # Create a temporary directory to store the PDF
+            with tempfile.TemporaryDirectory() as temp_dir:
+                pdf_path = os.path.join(temp_dir, f'order_{order_id}.pdf')
+                sql_to_pdf(username, pdf_path)
+                
+                # Send the order confirmation email with the PDF attachment
+                send_email_with_attachment(to, 'Order Confirmation', body, pdf_path)
+
+            # Clear the cart
+            query = "DELETE FROM " + username + "_cart"
+            db_query(query)
+
+            # Redirect to a thank you page or any other appropriate page
+            return jsonify({'message': 'Order placed successfully.'}), 200
+        else:
+            return jsonify({'error': 'Something went wrong.'}), 500
+    else:
+        # Handle GET request (display the checkout page)
+        products = get_cart_items().json
+        if not products:
+            return redirect(url_for('views.catalog', id=user_id))
+        return render_template('checkout.html', products=products, user_id=user_id)
+
+
+@views.route('/thanks', methods=['GET'])
+def thanks():
+    return render_template('order_confirm.html', id=session.get("id"))

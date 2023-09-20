@@ -85,6 +85,8 @@ function displayProducts() {
                 imgElement.src = `/get_image/catalog/${product.id}.png`;
                 imgElement.alt = product.name;
                 productCard.appendChild(imgElement);
+                // Add a click event listener to the product card
+                productCard.addEventListener('click', () => redirectToProductPage(product.id));
                 if (product.stock <= 0  || product.stock == null) {
                     productCard.innerHTML += `
                     <h3>${product.name}</h3>
@@ -228,3 +230,9 @@ const editButtonRemove = document.querySelector(".popup#editProductPopup .close"
 closeButtonRemove.addEventListener("click", function() {
     closePopup("editProductPopup");
 });
+
+
+function redirectToProductPage(productId) {
+    // Redirect to the product page with the product ID
+    window.location.href = `/product/${productId}`;
+}

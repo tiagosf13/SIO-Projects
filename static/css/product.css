@@ -207,3 +207,40 @@ label[for="rating"] {
     align-items: start; /* Align content at the start */
     text-align: start; /* Left-align text within the balloons */
 }
+
+
+.shopping-cart h2 {
+    font-size: 24px; /* Heading font size */
+    margin-bottom: 15px; /* Spacing below the heading */
+}
+
+#cartList {
+    list-style-type: none; /* Remove list bullets */
+    padding: 0; /* Remove default padding */
+}
+
+#cartList li {
+    margin-bottom: 10px; /* Spacing between cart items */
+    font-size: 16px; /* Cart item font size */
+}
+
+#cartTotal {
+    font-size: 18px; /* Total font size */
+    font-weight: bold; /* Make the total bold */
+    margin-top: 20px; /* Spacing above the total */
+}
+
+#removeAllItems {
+    background-color: #ff6347; /* Button background color */
+    color: white; /* Button text color */
+    border: none; /* Remove button border */
+    padding: 10px 15px; /* Button padding */
+    font-size: 16px; /* Button font size */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Add pointer cursor on hover */
+    margin-top: 15px; /* Spacing above the button */
+}
+
+#removeAllItems:hover {
+    background-color: #ff4d35; /* Button background color on hover */
+}

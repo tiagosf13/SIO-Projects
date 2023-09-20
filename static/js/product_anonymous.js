@@ -1,12 +1,10 @@
 // Function to fetch reviews and ratings and populate the review list and average rating
 function fetchReviewsAndRating() {
-    console.log(productId)
 
     fetch(`/get_reviews/${productId}`)
         .then(response => response.json())
         .then(data => {
             // Clear existing reviews
-            console.log(data);
             const reviewList = document.getElementById('reviewList');
             reviewList.innerHTML = '';
 
@@ -14,7 +12,6 @@ function fetchReviewsAndRating() {
             let averageRatingCount = 0;
             // Display reviews  
             data.forEach(review => {
-                console.log(review);
                 displayReview(review);
                 averageRatingCount += review.rating;
             });

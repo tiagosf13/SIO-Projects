@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Admin Page</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/product.css')}}">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/catalog.css')}}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <h1>Product Admin Page</h1>
+    </header>
+    <a href="#" id="backToCatalog">Back to Catalog</a>
+    <div class="product-details">
+        <!-- Display product image, price, and ID here -->
+        <img src="/get_image/catalog/{{product.id}}.png" alt="Product Image">
+        <div class="product-info">
+            <p class="product-name">{{product.name}}</p>
+            <p class="product-description">{{product.description}}</p>
+            <p style="color: red">ID: {{product.id}}</p>
+            <p style="color: green">Price: {{product.price}} €</p>
+        </div>
+        <div class="average-rating">
+            <h3>Average Rating</h3>
+            <p id="averageRating">-</p>
+        </div>
+        <br>
+    </div>
+
+    <div class="all-reviews">
+        <h3>All Reviews</h3>
+        <ul id="reviewList">
+            <!-- Reviews will be added here dynamically -->
+        </ul>
+    </div>
+
+    <script type="text/javascript">
+        const productId = '{{product.id}}'; // Assign the product ID to a JavaScript variable
+    </script>
+
+    <script type="text/javascript" src="{{url_for('static', filename='js/product.js')}}"></script>
+
+</body>
+</html>

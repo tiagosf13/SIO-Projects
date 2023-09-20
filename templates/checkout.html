@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout Process</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/catalog.css')}}">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/checkout.css')}}">
+</head>
+<body>
+    <h1>Checkout Process</h1>
+
+    <!-- Container for the widgets -->
+    <div class="checkout-container">
+        <div class="widget-list">
+            <div class="widget-button active-button" onclick="showWidget(1)">Shipping and Billing</div>
+            <br>
+            <div class="widget-button" onclick="showWidget(2)">Payment Processing</div>
+        </div>
+        <!-- Widget 1: Shipping and Billing Information -->
+        <div id="widget1" class="checkout-widget active-widget">
+            <h2>Shipping and Billing Information</h2>
+            <form id="shippingForm" action="/checkout" method="POST"> <!-- Specify the action and method attributes -->
+                <!-- Add your form fields for collecting shipping and billing information here -->
+                <label for="firstName">First Name:</label>
+                <input type="text" id="firstName" name="firstName" required><br><br>
+
+                <label for="lastName">Last Name:</label>
+                <input type="text" id="lastName" name="lastName" required><br><br>
+
+                <label for="address">Shipping Address:</label>
+                <input type="text" id="address" name="address" required><br><br>
+            </form>
+        </div>
+
+        <!-- Widget 2: Payment Processing (Initially Hidden) -->
+        <div id="widget2" class="checkout-widget prev-widget">
+            <h2>Payment Processing</h2>
+            <form id="paymentForm" action="/checkout" method="POST"> <!-- Specify the action and method attributes -->
+                <!-- Add your payment processing form fields (e.g., credit card, PayPal) here -->
+                <label for="creditCard">Credit Card Number:</label>
+                <input type="text" id="creditCard" name="creditCard" required><br><br>
+
+                <label for="expirationDate">Expiration Date:</label>
+                <input type="text" id="expirationDate" name="expirationDate" required><br><br>
+
+                <label for="cvv">CVV:</label>
+                <input type="text" id="cvv" name="cvv" required><br><br>
+
+                <!-- Add more payment fields as needed -->
+                <button type="submit" id="submitButton">Submit Order</button> <!-- Change the button type to "submit" -->
+            </form>
+        </div>
+    </div>
+    <div class="shopping-cart">
+        <h2>Shopping Cart</h2>
+        <ul id="cartList">
+            <!-- Cart items will be displayed here -->
+        </ul>
+        <p id="cartTotal">Total: <span id="totalAmount">0 €</span></p>
+    </div>
+
+    <script type="text/javascript" src="{{url_for('static', filename='js/catalog_cart.js')}}"></script>
+
+    <!-- JavaScript to handle widget navigation -->
+    <!-- Replace this line to directly load the JavaScript file -->
+    <script>
+        // Call the function to update the cart display when the page loads
+        updateCartDisplay();
+    </script>
+    <script type="text/javascript" src="/static/js/checkout.js"></script>
+</body>
+</html>
+
+

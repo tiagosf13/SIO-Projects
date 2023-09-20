@@ -4,6 +4,7 @@ from string import ascii_uppercase, ascii_lowercase
 from handlers.EmailHandler import send_email
 import os
 import shutil
+from flask import render_template_string
 
 
 
@@ -145,6 +146,11 @@ def check_id_existence(id):
     return result[0][0]
 
 
+def check_order_id_existence(id):
+    result = db_query("SELECT EXISTS(SELECT 1 FROM all_orders WHERE order_id = %s);", (id,))
+    return result[0][0]
+
+
 def generate_random_id():
     # Generate a random ID
     random_id = random.randint(100000, 999999)
@@ -161,10 +167,7 @@ def create_user_folder(id):
     directory = os.getcwd()
 
     # Define the path for the user's directory
-    user_directory = os.path.join(directory, "database", "accounts", str(id))
-
-    # Create the user's directory and any missing parent directories
-    os.makedirs(user_directory, exist_ok=True)
+    user_directory = os.path.join(directory, "database", "accounts")
 
     # Set the paths for the source and destination files
     src_path = os.path.join(directory, "static", "images", "default.png")
@@ -308,3 +311,38 @@ def get_user_role(id):
 
         # If it wasn't return None
         return None
+
+
+def compose_email_body(products, order_id):
+    # Read the HTML and CSS files
+    if os.name == "nt":
+        # Get the current working directory
+        current_directory = os.path.dirname(os.path.abspath(__file__)).split("\\handlers")[0]
+    else:
+        # Get the current working directory
+        current_directory = os.path.dirname(os.path.abspath(__file__)).split("/handlers")[0]
+
+    with open(current_directory + '/templates/email_order.html', 'r', encoding='utf8') as html_file:
+        email_template = html_file.read()
+
+    with open(current_directory + '/static/css/email_order.css', 'r', encoding='utf8') as css_file:
+        css_styles = css_file.read()
+
+    # Create a context dictionary with the products and total_price
+    context = {
+        'products': products,
+        'total_price': calculate_total_price(products),  # Calculate the total price here]
+        'order_id': order_id
+    }
+
+    # Render the email template with the context
+    body = render_template_string(email_template, **context)
+    body = body.replace('{{ css_styles }}', css_styles)
+
+    return body
+
+def calculate_total_price(products):
+    total_price = 0
+    for product in products:
+        total_price += int(product['quantity']) * float(product['price'])
+    return total_price

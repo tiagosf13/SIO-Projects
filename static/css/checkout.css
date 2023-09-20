@@ -1,0 +1,97 @@
+/* Add your CSS styles here */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f2f2f2; /* Background color for the entire page */
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    text-align: center;
+    margin-top: 20px;
+    color: #333; /* Heading text color */
+}
+
+.checkout-container {
+    display: flex;
+    flex-direction: row;
+}
+
+/* Balloon-style widget buttons */
+.widget-button {
+    background-color: #007BFF; /* Button background color */
+    color: #fff; /* Button text color */
+    font-size: 18px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px; /* Adjust as needed */
+    margin: 5px;
+    cursor: pointer;
+    transition: opacity 0.3s ease-in-out;
+    opacity: 0.5;
+}
+
+.widget-button.active-button {
+    opacity: 1; /* Active button opacity */
+}
+
+.widget-button:hover {
+    opacity: 0.9; /* Hover button opacity */
+}
+
+/* Checkout widget styles */
+.checkout-widget {
+    width: 100%;
+    max-width: 400px; /* Limit the width of the widgets */
+    padding: 20px;
+    box-sizing: border-box;
+    background-color: #fff; /* Widget background color */
+    border-radius: 10px; /* Widget border radius */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Widget box shadow */
+    margin-bottom: 20px; /* Spacing between widgets */
+    display: none; /* Initially hidden */
+    transform: translateX(50%)
+}
+
+.active-widget {
+    display: block; /* Show the active widget */
+}
+
+/* Form styles */
+form {
+    text-align: left;
+    margin: 0 auto; /* Center the form horizontally */
+    max-width: 80%; /* Limit the form width */
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #333; /* Label text color */
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc; /* Input border color */
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+/* Button styles */
+button {
+    background-color: #007BFF; /* Button background color */
+    color: #fff; /* Button text color */
+    font-size: 18px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px; /* Button border radius */
+    cursor: pointer;
+    transition: opacity 0.3s ease-in-out;
+}
+
+button:hover {
+    opacity: 0.9; /* Hover button opacity */
+}

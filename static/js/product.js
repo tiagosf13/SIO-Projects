@@ -1,12 +1,10 @@
 // Function to fetch reviews and ratings and populate the review list and average rating
 function fetchReviewsAndRating() {
-    console.log(productId)
 
     fetch(`/get_reviews/${productId}`)
         .then(response => response.json())
         .then(data => {
             // Clear existing reviews
-            console.log(data);
             const reviewList = document.getElementById('reviewList');
             reviewList.innerHTML = '';
 
@@ -14,7 +12,6 @@ function fetchReviewsAndRating() {
             let averageRatingCount = 0;
             // Display reviews  
             data.forEach(review => {
-                console.log(review);
                 displayReview(review);
                 averageRatingCount += review.rating;
             });
@@ -73,14 +70,10 @@ function addReview(event) {
     .then(data => {
         // Assuming the server responds with data, you can handle it here
         // For example, you can display a success message or update the review list
-        console.log('Review added:', data);
 
         // Clear the review and reset the rating
         document.getElementById('userReview').value = '';
         document.getElementById('rating').value = '1';
-
-        // Display the new review immediately
-        displayReview(data);
 
         // Refresh the average rating
         fetchReviewsAndRating();
@@ -107,3 +100,28 @@ function displayReview(review) {
 
 // Add an event listener to the form submission
 document.getElementById('reviewForm').addEventListener('submit', addReview);
+
+document.getElementById('addToCart').addEventListener('click', function(event) {
+    event.stopPropagation();
+    const product = JSON.parse(productJSON); // Parse the JSON string back to an object
+    const quantityInput = document.getElementById('quantity');
+    product.quantity = parseInt(quantityInput.value);;
+    if (product.quantity < 0) {
+        product.quantity = 0;
+    }
+    // Now, you can use the 'product' object as needed
+    shoppingCart.addProduct(product);
+});
+
+
+document.getElementById('removeFromCart').addEventListener('click', function(event) {
+    event.stopPropagation();
+    const product = JSON.parse(productJSON); // Parse the JSON string back to an object
+    const quantityInput = document.getElementById('quantity');
+    product.quantity = parseInt(quantityInput.value);;
+    if (product.quantity < 0) {
+        product.quantity = 0;
+    }
+    shoppingCart.removeProduct(product);
+});
+

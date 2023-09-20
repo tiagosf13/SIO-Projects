@@ -22,7 +22,6 @@ const sortingOrder = {};
 
 // Function to sort the table by column
 function sortTable(column) {
-    console.log('Sorting table by column', column);
     const table = $('#productTable');
     const rows = table.find('tbody tr').toArray();
 

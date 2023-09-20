@@ -164,7 +164,6 @@ fetch('/products')
     .then(response => response.json())
     .then(data => {
         const maxProductPrice = Math.max(...data.map(product => parseFloat(product.price)));
-        console.log(maxProductPrice);
         initPriceSlider(maxProductPrice); // Initialize the slider with maxProductPrice
     })
     .catch(error => {

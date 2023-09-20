@@ -309,7 +309,7 @@ body {
     margin-top: 20px; /* Spacing above the total */
 }
 
-#removeAllItems {
+#removeAllItems, #checkoutButton {
     background-color: #ff6347; /* Button background color */
     color: white; /* Button text color */
     border: none; /* Remove button border */
@@ -320,7 +320,7 @@ body {
     margin-top: 15px; /* Spacing above the button */
 }
 
-#removeAllItems:hover {
+#removeAllItems:hover, #checkoutButton:hover {
     background-color: #ff4d35; /* Button background color on hover */
 }
 

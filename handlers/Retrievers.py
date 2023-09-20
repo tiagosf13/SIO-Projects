@@ -1,5 +1,26 @@
 from handlers.DataBaseCoordinator import db_query
 
+def get_orders(username_orders):
+    query = "SELECT * FROM " + username_orders
+    result = db_query(query, (username_orders,))
+
+    orders = {}
+
+    for element in result:
+        current_order_id = element[2]
+
+        if current_order_id not in orders:
+            orders[current_order_id] = []
+        else:
+            orders[current_order_id].append({
+                "product_id": element[0],
+                "quantity": element[1],
+                "name" : get_product_by_id(element[0])["name"],
+                "price" : get_product_by_id(element[0])["price"]
+            })
+    return orders
+
+
 def get_all_products():
     query = "SELECT * FROM products"
     results = db_query(query)  # Assuming db_query returns a list of rows
@@ -90,3 +111,13 @@ def get_cart(username_cart):
                 "price" : get_product_by_id(element[0])["price"]
             })
     return cart
+
+
+def get_user_email(id):
+    query = "SELECT email FROM users WHERE id = %s"
+    results = db_query(query, (id,))
+
+    if len(results) == 0:
+        return None
+    else:
+        return results[0][0]
