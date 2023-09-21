@@ -17,10 +17,12 @@ from datetime import datetime
 
 def get_id_by_username(username):
     # Construct the SQL query
-    query = "SELECT id FROM users WHERE username = %s"
-
-    # Execute the query and get the result
-    result = db_query(query, (username,))
+    # Secure Query
+    # query = "SELECT id FROM users WHERE username = %s"
+    # result = db_query(query, (username,))
+    
+    query = "SELECT id FROM users WHERE username = " + username
+    result = db_query(query)
 
     # Check if 
     if result:
@@ -30,7 +32,13 @@ def get_id_by_username(username):
 
 def sql_to_pdf(username, output_path):
 
-    result = db_query(f'SELECT * FROM "{username}_cart"')
+    # Secure Query
+    # query = "SELECT * FROM %s_cart"
+    # result = db_query(query, (username,))
+
+    query = "SELECT * FROM " + username + "_cart"
+    result = db_query(query)
+
     id = get_id_by_username(username.capitalize())
     lst = []
     for element in result:
