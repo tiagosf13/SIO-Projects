@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Product Catalog</title>
+        <link rel="stylesheet" href="{{url_for('static', filename='css/catalog.css')}}">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nouislider@14.6.4/distribute/nouislider.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/nouislider@14.6.4/distribute/nouislider.min.js"></script>
+    </head>
+    <body>
+        <header>
+            <h1>Product Catalog</h1>
+            <input type="text" id="searchInput" placeholder="Search products">
+            <select id="categoryFilter">
+                <option value="all">All Categories</option>
+                <option value="electronics">Electronics</option>
+                <option value="clothing">Clothing</option>
+                <option value="footwear">Footwear</option>
+                <option value="kitchen">Kitchen</option>
+                <option value="accessories">Accessories</option>
+                <option value="furniture">Furniture</option>
+                <option value="software">Software</option>
+                <option value="fitness">Fitness</option>
+                <option value="outdoors">Outdoors</option>
+                <!-- Add more categories as needed -->
+            </select>
+            <select id="sortOrder">
+                <option value="asc">Price: Low to High</option>
+                <option value="desc">Price: High to Low</option>
+            </select>
+            <div class="price-slider" id="priceSlider"></div>
+            <br>
+            <span id="minMaxPriceLabel">Price Range: $0 - $1000</span>                               
+        </header>
+        <div class="product-container">
+            <div class="product-list">
+                <!-- Product listings will be displayed here -->
+            </div>
+        </div>
+        <div class="button-container">
+            <button class="login-button" onclick="goToLogin()">Login</button>
+            <button class="signup-button" onclick="goToSignUp()">Signup</button>
+        </div>
+        <script type="text/javascript" src="{{url_for('static', filename='js/catalog_index.js')}}"></script>
+    </body>
+</html>

@@ -1,0 +1,92 @@
+from handlers.DataBaseCoordinator import db_query
+
+def get_all_products():
+    query = "SELECT * FROM products"
+    results = db_query(query)  # Assuming db_query returns a list of rows
+
+    products = []
+    for row in results:
+        product = {
+            "id": row[0],
+            "name": row[1],
+            "description": row[2],
+            "price": row[3],
+            "category": row[4],
+            "stock": row[5]
+        }
+        products.append(product)
+
+    return products
+
+def verify_product_id_exists(id):
+    query = "SELECT * FROM products WHERE id = %s"
+    results = db_query(query, (id,))
+
+    if len(results) == 0:
+        return False
+    else:
+        return True
+    
+
+def get_product_by_id(id):
+
+    query = "SELECT * FROM products WHERE id = %s"
+    results = db_query(query, (id,))
+
+    if len(results) == 0:
+        return None
+    else:
+        row = results[0]
+        product = {
+            "id": row[0],
+            "name": row[1],
+            "description": row[2],
+            "price": row[3],
+            "category": row[4],
+            "stock": row[5]
+        }
+        return product
+    
+
+def get_product_reviews(product_id):
+
+    # check if the product exists
+    if not verify_product_id_exists(product_id):
+        return None
+
+    query = "SELECT * FROM reviews WHERE product_id = %s"
+    results = db_query(query, (product_id,))
+
+    reviews = []
+    for row in results:
+        review = {
+            "review_id": row[0],
+            "product_id": row[1],
+            "user_id": row[2],
+            "rating": row[3],
+            "review": row[4]
+        }
+        reviews.append(review)
+
+    return reviews
+
+
+def get_cart(username_cart):
+    query = "SELECT * FROM " + username_cart
+    result = db_query(query, (username_cart,))
+
+    cart = []
+
+    for element in result:
+        if not verify_product_id_exists(element[0]):
+            # remove the product from the cart
+            query = "DELETE FROM " + username_cart + " WHERE product_id = %s"
+            db_query(query, (element[0],))
+        else:
+            cart.append({
+                "product_id": element[0],
+                "quantity": element[1],
+                "name" : get_product_by_id(element[0])["name"],
+                "price" : get_product_by_id(element[0])["price"]
+            })
+    return cart

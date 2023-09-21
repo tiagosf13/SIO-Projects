@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Display Excel Data</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        /* Add pointer cursor to table headers on hover */
+        #productTable thead th {
+            cursor: pointer;
+        }
+        /* Style for sorting indicators */
+        .sorting-asc::after {
+            content: "▲";
+            padding-left: 5px;
+        }
+        .sorting-desc::after {
+            content: "▼";
+            padding-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Product Quantities</h1>
+    <!-- Add a search bar above the table -->
+    <div class="container mt-3">
+        <input type="text" id="searchInput" placeholder="Search products">
+    </div>
+
+    <div class="container mt-5">
+        <table class="table table-striped" id="productTable">
+            <thead>
+                <tr>
+                    <th data-column="image">Image</th> <!-- New column for product images -->
+                    <th data-column="id">ID</th>
+                    <th data-column="name">Name</th>
+                    <th data-column="description">Description</th>
+                    <th data-column="price">Price (€)</th>
+                    <th data-column="category">Category</th>
+                    <th data-column="stock">Stock</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                    <tr>
+                        <td><img src="{{ url_for('views.get_image', filename='catalog/' + product.id|string + '.png') }}" width="50"></td>
+                        <td>{{ product.id }}</td>
+                        <td>{{ product.name }}</td>
+                        <td>{{ product.description }}</td>
+                        <td>{{ product.price }} €</td>
+                        <td>{{ product.category }}</td>
+                        <td>{{ product.stock }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script type="text/javascript" src="{{url_for('static', filename='js/product_quantities.js')}}"></script>
+</body>
+</html>
+
+

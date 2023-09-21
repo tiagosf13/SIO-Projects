@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Order Confirmation</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f7f7f7; margin: 0; padding: 0;">
+    <table style="width: 100%; background-color: #ffffff; max-width: 600px; margin: 0 auto; border-collapse: collapse;">
+        <tr>
+            <td style="padding: 20px; text-align: center;">
+                <h1 style="color: #333;">Your Order Confirmation</h1>
+                <p style="color: #666; font-size: 16px;">Thank you for your purchase. Here are the details of your order:</p>
+            </td>
+        </tr>
+    </table>
+
+    <table style="width: 100%; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-collapse: collapse;">
+        <thead style="background-color: #333; color: #ffffff; font-weight: bold;">
+            <tr>
+                <th style="padding: 10px; border: 1px solid #ddd;">Product ID</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Product Name</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Quantity</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td style="padding: 10px; border: 1px solid #ddd;">{{ product.product_id }}</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">{{ product.name }}</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">{{ product.quantity }}</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">{{ (product.quantity * product.price)|round(2) }} €</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <table style="width: 100%; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-collapse: collapse;">
+        <tr>
+            <td style="padding: 20px; text-align: center;">
+                <h3 style="color: #333;">Order ID: {{ order_id }}</h3>
+                <br>
+                <h4 style="color: #333;">Total Price: {{ total_price }} €</h4>
+                <div class="thank-you" style="background-color: #f7f7f7; padding: 20px; text-align: center;">
+                    <p style="color: #666; font-size: 16px;">Thank you for shopping with us!</p>
+                </div>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

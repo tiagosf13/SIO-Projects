@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" class="dark" style="color-scheme: dark;">
+<head>
+    <meta charset="UTF-8">
+    <title>ECO - Account Settings</title>
+    <link rel="icon" type="image/png" href="{{ url_for('views.get_image', filename='database/accounts/' + id + '/' + id + '.png') }}"/>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/profile.css')}}">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/home.css')}}">
+    <script type="text/javascript" src="{{url_for('static', filename='js/profile.js')}}"></script>
+</head>
+<body style="margin-top: 7%;">
+<h2>Account Settings</h2>
+<img src="{{ url_for('views.get_image', filename='database/accounts/' + id + '.png') }}" alt="Profile Photo" class="profile-image" style="margin-top: 70px;">
+<h2>{{username}}</h2>
+    <form action="/update_account/{{id}}" method="post" enctype="multipart/form-data" onsubmit="return validateForm();" style="margin-top: 70px;">
+        <div class="container">
+            <label for="username"><b>Username</b></label>
+            <input type="text" placeholder="Enter Username" name="username" id="username" style="margin-bottom: 30px; width: 200px; display: block; margin-left: 39%;">
+
+            <label for="email"><b>Email</b></label>
+            <input type="text" placeholder="Enter Email" name="email" id="email" style="margin-bottom: 30px; width: 200px; display: block; margin-left: 39%;">
+
+            <label for="psw"><b>Password</b></label>
+            <input type="password" placeholder="Enter Password" name="psw" id="psw" style="margin-bottom: 30px; width: 200px; display: block; margin-left: 39%;">
+
+            <label for="psw-repeat"><b>Repeat Password</b></label>
+            <input type="password" placeholder="Repeat Password" name="psw-repeat" id="psw-repeat" style="margin-bottom: 30px; width: 200px; display: block; margin-left: 39%;">
+            <div id="error-message-psw" style="color: red;"></div>
+            <div id="error-message-username" style="color: red;"></div>
+            <div id="error-message-email" style="color: red;"></div>
+
+            <label for="profile_photo"><b>Profile Photo</b></label>
+            <br>
+            <label class="image-label">
+                Insert<input type="file" name="profile_photo" accept="image/*" onchange="previewImage();" capture="camera" class="image-input">
+            </label>
+            <br>
+            <img src="" alt="Preview Image" class="preview-image">
+            <br>
+            <br>
+            <button type="submit" style="height: fit-content;" class="savebtn">Save</button>
+            <button type="button" style="height: fit-content;" class="cancelbtn" onclick='goToCatalogPage("{{id}}")'>Cancel</button>
+        </div>
+    </form>
+</body>
+</html>

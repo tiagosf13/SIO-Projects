@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Page</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/product.css')}}">
+</head>
+<body>
+    <header>
+        <h1>Product Page</h1>
+    </header>
+    <a href="#" id="backToCatalog">Back to Catalog</a>
+    <div class="product-details">
+        <!-- Display product image, price, and ID here -->
+        <img src="/get_image/catalog/{{productId}}.png" alt="Product Image">
+        <div class="product-info">
+            <p class="product-name">{{productName}}</p>
+            <p class="product-description">{{productDescription}}</p>
+            <p style="color: red">ID: {{productId}}</p>
+            <p style="color: green">Price: {{productPrice}} €</p>
+        </div>
+        <div class="average-rating">
+            <h3>Average Rating</h3>
+            <p id="averageRating">-</p>
+        </div>
+    </div>
+
+    <form id="reviewForm" action="{{url_for('views.add_review', product_id=productId)}}" method="POST">
+        <div class="product-reviews">
+            <div class="user-review">
+                <h3>Your Review</h3>
+                <textarea id="userReview" rows="4" placeholder="Write your review here" name="userReview"></textarea>
+                <label for="rating">Rating:</label>
+                <select id="rating" name="rating">
+                    <option value="1">1 Star</option>
+                    <option value="2">2 Stars</option>
+                    <option value="3">3 Stars</option>
+                    <option value="4">4 Stars</option>
+                    <option value="5">5 Stars</option>
+                </select>
+                <br>
+                <button id="submitReview">Submit Review</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="all-reviews">
+        <h3>All Reviews</h3>
+        <ul id="reviewList">
+            <!-- Reviews will be added here dynamically -->
+        </ul>
+    </div>
+
+    <!-- Include the external JavaScript file -->
+    <script type="text/javascript">
+        const productId = '{{productId}}'; // Assign the product ID to a JavaScript variable
+    </script>
+    <script type="text/javascript" src="{{url_for('static', filename='js/product.js')}}"></script>
+    </script>
+
+</body>
+</html>
