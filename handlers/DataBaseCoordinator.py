@@ -82,7 +82,7 @@ def check_database_table_exists(table_name):
         # result = db_query(query, (table_name,))
 
         # Unsecure Query
-        query = "SELECT EXISTS(SELECT * FROM information_schema.tables WHERE table_name=" + table_name + ")"
+        query = "SELECT EXISTS(SELECT * FROM information_schema.tables WHERE table_name= '" + table_name + "')"
         result = db_query(query)
         
         if not result[0][0]:

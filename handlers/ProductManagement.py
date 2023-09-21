@@ -12,7 +12,7 @@ def verify_id_exists(id, table):
     #query = "SELECT * FROM %s WHERE id= %s"
     #results = db_query(query, (table, id,))
 
-    query = "SELECT * FROM " + table + " WHERE id=" + id
+    query = "SELECT * FROM " + table + " WHERE id=" + str(id)
     results = db_query(query)
 
     if len(results) == 0:
@@ -58,7 +58,7 @@ def create_product(product_name, product_description, product_price, product_cat
     #         (id, product_name, product_description, product_price, product_category, product_quantity)
     # )
 
-    query = "INSER INTO products (id, name, description, price, category, stock) VALUES ("+id+","+product_name+","+product_description+","+product_price+","+product_category+","+product_quantity+")"
+    query = "INSERT INTO products (id, name, description, price, category, stock) VALUES ("+str(id)+",'"+str(product_name)+"','"+str(product_description)+"',"+str(product_price)+",'"+str(product_category)+"',"+str(product_quantity)+")"
     db_query(query)
     # Create a folder for the user
     create_product_image(id, product_photo)
@@ -72,7 +72,7 @@ def remove_product(id):
     # query = "DELETE FROM products WHERE id = %s"
     # db_query(query, (id,))
 
-    query = "DELETE FROM products WHERE id="+id
+    query = "DELETE FROM products WHERE id="+str(id)
     db_query(query)
 
     # Get the current working directory
@@ -93,7 +93,7 @@ def update_product_name(id, name):
     # query = "UPDATE products SET name = %s WHERE id = %s"
     # db_query(query, (name, id))
 
-    query = "UPDATE products SET name="+name+" WHERE id="+id
+    query = "UPDATE products SET name='"+name+"' WHERE id="+str(id)
     db_query(query)
     return True
 
@@ -103,7 +103,7 @@ def update_product_description(id, description):
     # query = "UPDATE products SET description = %s WHERE id = %s"
     # db_query(query, (description, id))
 
-    query = "UPDATE products SET description="+description+" WHERE id="+id
+    query = "UPDATE products SET description='"+description+"' WHERE id="+str(id)
     db_query(query)
     return True
 
@@ -113,7 +113,7 @@ def update_product_price(id, price):
     # query = "UPDATE products SET price = %s WHERE id = %s"
     # db_query(query, (price, id))
 
-    query = "UPDATE products SET price="+price+" WHERE id="+id
+    query = "UPDATE products SET price="+price+" WHERE id="+str(id)
     db_query(query)
     return True
 
@@ -124,7 +124,7 @@ def update_product_category(id, category):
     # query = "UPDATE products SET category = %s WHERE id = %s"
     # db_query(query, (category, id))
 
-    query = "UPDATE products SET category="+category+" WHERE id="+id
+    query = "UPDATE products SET category='"+category+"' WHERE id="+str(id)
     db_query(query)
     return True
 
@@ -134,7 +134,7 @@ def update_product_quantity(id, quantity):
     # query = "UPDATE products SET stock = %s WHERE id = %s"
     # db_query(query, (quantity, id))
 
-    query = "UPDATE products SET stock="+quantity+" WHERE id="+id
+    query = "UPDATE products SET stock="+str(quantity)+" WHERE id="+str(id)
     db_query(query)
     return True
 
@@ -146,7 +146,7 @@ def create_review(id, user_id, review, rating):
     # query = "INSERT INTO reviews (id, product_id, user_id, rating, review) VALUES (%s, %s, %s, %s, %s);"
     # db_query(query, (review_id, id, user_id, rating, review))
 
-    query = "INSERT INTO reviews (id, product_id, user_id, rating, review) VALUES ("+review_id+","+id+","+user_id+","+rating+","+review+");"
+    query = "INSERT INTO reviews (id, product_id, user_id, rating, review) VALUES ("+review_id+","+str(id)+","+str(user_id)+","+str(rating)+",'"+str(review)+"');"
     db_query(query)
     return True
 
@@ -158,7 +158,7 @@ def set_cart_item(table_name, product_id, quantity, operation):
     # query = "SELECT * FROM %s WHERE product_id = %s"
     # results = db_query(query,(table_name, product_id,))
     
-    query = "SELECT * FROM "+table_name+" WHERE product_id = "+product_id
+    query = "SELECT * FROM "+table_name+" WHERE product_id = "+str(product_id)
     results = db_query(query)
     if operation == "remove" and len(results) == 0:
         return False
@@ -168,11 +168,11 @@ def set_cart_item(table_name, product_id, quantity, operation):
         if operation == "add":
             # Secure Query
             # query = "UPDATE %s SET quantity = quantity + %s WHERE product_id = %s"
-            query = "UPDATE "+table_name+" SET quantity = quantity + "+quantity+" WHERE product_id = "+product_id
+            query = "UPDATE "+table_name+" SET quantity = quantity + "+str(quantity)+" WHERE product_id = "+str(product_id)
         else:
             # Secure Query
             # query = "UPDATE %s SET quantity = quantity - %s WHERE product_id = %s"
-            query = "UPDATE "+table_name+" SET quantity = quantity - "+quantity+" WHERE product_id = "+product_id
+            query = "UPDATE "+table_name+" SET quantity = quantity - "+str(quantity)+" WHERE product_id = "+str(product_id)
         # Secure Query
         #db_query(query, (table_name, quantity, product_id))
         db_query(query)
@@ -182,14 +182,14 @@ def set_cart_item(table_name, product_id, quantity, operation):
         # Secure Query
         # query = "INSERT INTO %s (product_id,quantity) VALUES (%s,%s);"
         # db_query(query, (table_name, product_id, quantity))
-        query = "INSERT INTO "+table_name+" (product_id, quantity) VALUES ("+product_id+","+quantity+");"
+        query = "INSERT INTO "+table_name+" (product_id, quantity) VALUES ("+str(product_id)+","+str(quantity)+");"
         db_query(query)
         return True
 
 
 def register_order(username, user_id, order_details, products):
 
-    try:
+    #try:
         check_database_table_exists(f"{username}_orders")
         products_to_register = {}
         total_price = 0
@@ -203,18 +203,17 @@ def register_order(username, user_id, order_details, products):
         # Secure Query
         # query = "INSERT INTO all_orders (id, user_id, order_date) VALUES (%s, %s, %s);"
         #db_query(query, (order_id, user_id, time))
-        query = "INSERT INTO all_orders (id, user_id, order_date) VALUES ("+order_id+","+user_id+","+time+");"
+        query = "INSERT INTO all_orders (id, user_id, order_date) VALUES ("+order_id+","+user_id+",'"+str(time)+"');"
         db_query(query)
-        # register in the user's orders
+
         # Secure Query
         # query = "INSERT INTO %s_orders (id, products, total_price, shipping_address, order_date) VALUES (%s, %s, %s, %s, %s);"
         # db_query(query, (username, order_id, json.dumps(products_to_register), total_price, order_details["shipping_address"], time))
         
-        # -----------------------FIQUEI AQUI-------------------
-        query = "INSERT INTO "+username+"_orders (id, products, total_price, shipping_address, order_date) VALUES ("+order_id+","+json.dumps(products_to_register)+","+total_price+","+order_details["shipping_address"]+","+time+");"
+        query = "INSERT INTO "+username+"_orders (id, products, total_price, shipping_address, order_date) VALUES ("+order_id+",'"+str(json.dumps(products_to_register))+"',"+str(total_price)+",'"+order_details["shipping_address"]+"','"+str(time)+"');"
         db_query(query)
         return True, order_id
-    except:
+    #except:
         return False, None
     
 
