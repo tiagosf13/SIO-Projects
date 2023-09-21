@@ -9,7 +9,7 @@ from reportlab.lib.colors import Color
 from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ParagraphStyle
-from reportlab.platypus import Table, TableStyle, SimpleDocTemplate, Image, Paragraph, Spacer, PageBreak
+from reportlab.platypus import Table, TableStyle, SimpleDocTemplate, Paragraph, Spacer, PageBreak
 from handlers.DataBaseCoordinator import db_query
 from handlers.Retrievers import get_product_by_id
 import os
@@ -21,7 +21,7 @@ def get_id_by_username(username):
     # query = "SELECT id FROM users WHERE username = %s"
     # result = db_query(query, (username,))
     
-    query = "SELECT id FROM users WHERE username = " + username
+    query = "SELECT id FROM users WHERE username = '" + username + "';"
     result = db_query(query)
 
     # Check if 
