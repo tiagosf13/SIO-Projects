@@ -1,6 +1,7 @@
 from flask import Flask
 from views import views
 from handlers.DataBaseCoordinator import check_database_table_exists
+#from flask_cors import CORS
 
 
 # Declare the app
@@ -15,6 +16,8 @@ if __name__ == '__main__':
     check_database_table_exists("products")
     check_database_table_exists("reviews")
     check_database_table_exists("all_orders")
+    # Set up CORS for security
+    #CORS(app)
     app.run(debug=True, host='127.0.0.1', port=5000)
 
 """

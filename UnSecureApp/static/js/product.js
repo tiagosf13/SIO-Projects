@@ -21,6 +21,10 @@ function fetchReviewsAndRating() {
             // Round to 1 decimal place
             averageRatingCount = Math.round(averageRatingCount * 10) / 10;
 
+            if (isNaN(averageRatingCount)) {
+                averageRatingCount = 5;
+            }
+
             // Display the average rating
             document.getElementById('averageRating').textContent = averageRatingCount + ' ★';
         })

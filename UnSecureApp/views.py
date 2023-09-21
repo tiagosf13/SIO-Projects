@@ -13,8 +13,6 @@ from handlers.DataBaseCoordinator import check_database_table_exists, db_query
 from handlers.UserManagement import compose_email_body
 from handlers.EmailHandler import send_email_with_attachment, sql_to_pdf
 import os
-import pandas as pd
-import json
 
 
 
@@ -423,33 +421,37 @@ def add_item_to_cart(product_id):
 def remove_item_from_cart(product_id):
     username = session.get("username").lower()
 
-    try:
-        data = request.get_json()
-        quantity = data.get('quantity')
+    #try:
+    data = request.get_json()
+    quantity = data.get('quantity')
 
-        if check_product_in_cart(username + "_cart", product_id) == False or quantity <= 0:
-            return jsonify({'error': 'Product not in cart.'}), 500
-        else:
-            user_cart = get_cart(username + "_cart")
+    if check_product_in_cart(username + "_cart", product_id) == False or quantity <= 0:
+        return jsonify({'error': 'Product not in cart.'}), 500
+    else:
+        user_cart = get_cart(username + "_cart")
 
-            for product in user_cart:
-                if product["quantity"] == 0:
-                    # Remove the product from the cart
-                    query = "DELETE FROM " + username + "_cart WHERE product_id = %s"
-                    db_query(query, (product["product_id"],))
-                elif product["product_id"] == product_id:
-                    product_stock = get_product_by_id(product_id)["stock"]
-                    if product["quantity"] - quantity < 0:
-                        return jsonify({'error': 'Not enough stock.'}), 500
-                    else:
-                        # You can add code here to update the user's cart in the database
-                        set_cart_item(username + "_cart", product_id, quantity, "remove")
-                        return jsonify({'message': 'Product added to the cart.'}), 200
+        for product in user_cart:
+            if product["quantity"] == 0:
+                # Remove the product from the cart
+                # Secure Query
+                # query = "DELETE FROM %s WHERE product_id = %s"
+                # db_query(query, (username + "_cart", product["product_id"],))
 
-            return jsonify({'message': 'Product added to the cart.'}), 200
-    except Exception as e:
-        print(e)
-        return jsonify({'error': str(e)}), 500
+                query = "DELETE FROM "+username+"_cart WHERE product_id = "+str(product["product_id"])+";"
+                db_query(query)
+            elif product["product_id"] == product_id:
+                product_stock = get_product_by_id(product_id)["stock"]
+                if product["quantity"] - quantity < 0:
+                    return jsonify({'error': 'Not enough stock.'}), 500
+                else:
+                    # You can add code here to update the user's cart in the database
+                    set_cart_item(username + "_cart", product_id, quantity, "remove")
+                    return jsonify({'message': 'Product added to the cart.'}), 200
+
+        return jsonify({'message': 'Product added to the cart.'}), 200
+    #except Exception as e:
+    #    print(e)
+    #    return jsonify({'error': str(e)}), 500
 
 
 
@@ -462,8 +464,12 @@ def get_cart_items():
     for product in user_cart:
         if not verify_product_id_exists(product["product_id"]) or product["quantity"] == 0 or product["quantity"] > get_product_by_id(product["product_id"])["stock"]:
             # Remove the product from the cart
-            query = "DELETE FROM " + username + "_cart WHERE product_id = %s"
-            db_query(query, (product["product_id"],))
+            # Secure Query
+            # query = "DELETE FROM %s WHERE product_id = %s"
+            # db_query(query, (username + "_cart", product["product_id"],))
+
+            query = "DELETE FROM "+username+"_cart WHERE product_id = "+str(product["product_id"])+";"
+            db_query(query)
             #remove from user cart
             user_cart.remove(product)
 
@@ -475,6 +481,10 @@ def remove_all_items_cart():
     username = session.get("username").lower()
 
     # Remove all the products from the cart
+    # Secure Query
+    # query = "DELETE FROM %s"
+    # db_query(query, (username + "_cart",))
+
     query = "DELETE FROM " + username.lower() + "_cart"
     db_query(query)
 
@@ -522,6 +532,10 @@ def checkout():
                 send_email_with_attachment(to, 'Order Confirmation', body, pdf_path)
 
             # Clear the cart
+            # Secure Query
+            # query = "DELETE FROM %s"
+            # db_query(query, (username + "_cart",))
+            
             query = "DELETE FROM " + username + "_cart"
             db_query(query)
 
