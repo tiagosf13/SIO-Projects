@@ -2,7 +2,6 @@ import random, os
 from handlers.DataBaseCoordinator import db_query
 from datetime import datetime
 from handlers.DataBaseCoordinator import check_database_table_exists
-from handlers.Retrievers import get_cart
 import json
 from handlers.Retrievers import get_product_by_id
 

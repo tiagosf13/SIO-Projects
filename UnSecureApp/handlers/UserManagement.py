@@ -4,6 +4,7 @@ from string import ascii_uppercase, ascii_lowercase
 from handlers.EmailHandler import send_email
 import os
 import shutil
+from handlers.ProductManagement import get_product_by_id
 from flask import render_template_string
 
 
@@ -163,10 +164,10 @@ def check_id_existence(id):
 
 def check_order_id_existence(id):
     # Secure Query
-    # query = "SELECT EXISTS(SELECT 1 FROM all_orders WHERE order_id = %s);"
+    # query = "SELECT EXISTS(SELECT 1 FROM all_orders WHERE id = %s);"
     # result = db_query(query, (id,))
 
-    query = "SELECT EXISTS(SELECT 1 FROM all_orders WHERE order_id = "+str(id)+");"
+    query = "SELECT EXISTS(SELECT 1 FROM all_orders WHERE id = "+str(id)+");"
     result = db_query(query)
     return result[0][0]
 
@@ -396,3 +397,49 @@ def calculate_total_price(products):
     for product in products:
         total_price += int(product['quantity']) * float(product['price'])
     return total_price
+
+
+def get_orders_by_user_id(id):
+
+    username = get_username_by_id(id).lower()
+
+    # Check if table exists
+    # Secure Query
+    # query = "SELECT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name=%s_orders);"
+    # result = db_query(query, (username,))
+
+    query = "SELECT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name='"+username+"_orders');"
+    result = db_query(query)
+
+    if not result[0][0]:
+        return None
+
+    # Secure Query
+    # query = "SELECT * FROM %s_orders;"
+    # result = db_query(query, (username,))
+
+    query = "SELECT * FROM "+username+"_orders;"
+    results = db_query(query)
+
+    # Check if the user has any orders
+    if not results:
+        return None
+
+    products = []
+    for row in results:
+        order_id = row[0]
+        order_address = row[2]
+        order_Date = row[4]
+        for element in row[1]:
+            product = {
+                "order_id" : order_id,
+                "product_id": element,
+                "quantity": row[1][element],
+                "name": get_product_by_id(element)["name"],
+                "price": get_product_by_id(element)["price"],
+                "address": order_address,
+                "date": order_Date
+            }
+            products.append(product)
+
+    return products

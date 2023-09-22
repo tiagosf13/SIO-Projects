@@ -42,8 +42,8 @@ if __name__ == '__main__':
         • Tracking product availability (in-stock, out-of-stock) =============> DONE
         • Managing product quantities ========================================> DONE
     6. Order History:
-        • View and track past orders
-        • Reorder from order history
+        • View and track past orders =========================================> DONE
+        • Reorder from order history =========================================> DONE
     7. Reviews and Ratings:
         • Allow customers to rate and review products ========================> DONE
         • Display average ratings and reviews ================================> DONE

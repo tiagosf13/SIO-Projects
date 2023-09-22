@@ -1,7 +1,7 @@
 import tempfile
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for, send_from_directory, send_file
 from handlers.UserManagement import search_user_by_email, validate_login, get_id_by_username, check_order_id_existence
-from handlers.UserManagement import search_user_by_username, send_recovery_password, create_user
+from handlers.UserManagement import search_user_by_username, send_recovery_password, create_user, get_orders_by_user_id
 from handlers.UserManagement import update_username, search_user_by_id, update_email, update_password
 from handlers.UserManagement import get_user_role
 from handlers.Verifiers import check_username_exists, check_email_exists, check_product_in_cart
@@ -554,3 +554,14 @@ def checkout():
 @views.route('/thanks', methods=['GET'])
 def thanks():
     return render_template('order_confirm.html', id=session.get("id"))
+
+
+@views.route('/orders/<id>', methods=['GET'])
+def orders(id):
+
+    products = get_orders_by_user_id(id)
+
+    if products == None:
+        return render_template('orders.html', products=[])
+
+    return render_template('orders.html', products=products)

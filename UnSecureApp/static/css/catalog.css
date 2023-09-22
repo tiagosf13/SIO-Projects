@@ -37,6 +37,68 @@ body {
     background-color: #f0f0f0;
 }
 
+/* Style for the profile and orders links container */
+.profile-links {
+    display: flex; /* Use flexbox to align items horizontally */
+    align-items: center; /* Center items vertically */
+}
+
+/* Style for the profile and orders links */
+#profileLink, #ordersLink {
+    text-decoration: none;
+    color: #fff;
+    margin-right: 10px; /* Add some margin between the links */
+    display: flex;
+    align-items: center;
+}
+
+/* Style for the profile photo */
+#profileLink img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+/* Style for the username */
+#username {
+    font-weight: bold;
+}
+
+/* Add this CSS to style the "Orders" link */
+#ordersLink {
+    position: absolute; /* Position the "Orders" link relative to the header */
+    top: 110px; /* Adjust the top position to your preference */
+    right: 10px; /* Adjust the right position to your preference */
+    text-decoration: none; /* Remove underline from the link */
+    color: #fff; /* Text color for the link */
+    display: flex; /* Use flex layout to align the photo and username horizontally */
+    align-items: center; /* Center items vertically */
+    padding: 8px 16px; /* Add padding to the link */
+    border-radius: 5px; /* Add rounded corners */
+    background-color: #007bff; /* Background color for the link */
+    transition: background-color 0.3s, color 0.3s; /* Add smooth transition effects */
+}
+
+#ordersLink:hover {
+    background-color: #0056b3; /* Change background color on hover */
+    color: white; /* Change text color on hover */
+}
+
+
+
+/* Style for the logout button */
+.logout-button {
+    background-color: red;
+    color: #fff;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+
 /* Existing CSS for header and other elements remains unchanged */
 
 /* Existing CSS for header and other elements remains unchanged */
