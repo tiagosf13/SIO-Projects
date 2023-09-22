@@ -28,7 +28,7 @@ document.getElementById('logoutButton').addEventListener('click', function() {
 // Function to update price labels based on the slider values
 function updatePriceLabels() {
     const [minPrice, maxPrice] = priceSlider.noUiSlider.get();
-    minMaxPriceLabel.textContent = `Price Range: $${minPrice} - $${maxPrice}`;
+    minMaxPriceLabel.textContent = `Price Range: ${minPrice} € - ${maxPrice} €`;
 }
 
 function displayProducts() {
@@ -93,7 +93,7 @@ function displayProducts() {
                     <p>${product.description}</p>
                     <p style="color: red">ID: ${product.id}</p>
                     <p>Stock: 0</p>
-                    <p class="price" style="color: green">$${product.price}</p>
+                    <p class="price" style="color: green">${product.price} €</p>
                 `;
                 } else{
                     productCard.innerHTML += `

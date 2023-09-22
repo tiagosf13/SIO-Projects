@@ -1,0 +1,13 @@
+/* Add pointer cursor to table headers on hover */
+#productTable thead th {
+    cursor: pointer;
+}
+/* Style for sorting indicators */
+.sorting-asc::after {
+    content: "▲";
+    padding-left: 5px;
+}
+.sorting-desc::after {
+    content: "▼";
+    padding-left: 5px;
+}

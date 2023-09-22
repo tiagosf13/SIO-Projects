@@ -1,18 +1,18 @@
-from handlers.DataBaseCoordinator import db_query
-import random
+import os, random, shutil
+from flask import render_template_string
 from string import ascii_uppercase, ascii_lowercase
 from handlers.EmailHandler import send_email
-import os
-import shutil
+from handlers.DataBaseCoordinator import db_query
+from handlers.ProductManagement import get_product_by_id
 
 
 
 def search_user_by_username(username):
-    # Construct the SQL query
+
+    # Secure Query
     query = "SELECT * FROM users WHERE username = %s"
-    
-    # Execute the query and get the result
     result = db_query(query, (username,))
+
 
     # If no user is found, return None
     if not result:
@@ -24,11 +24,10 @@ def search_user_by_username(username):
 
 def search_user_by_email(email):
 
-    # Construct the SQL query
+    # Secure Query
     query = "SELECT * FROM users WHERE email = %s"
-    
-    # Execute the query and get the result
     result = db_query(query, (email,))
+
 
     # If no user is found, return None
     if not result:
@@ -47,8 +46,10 @@ def validate_login(username, password):
     else:
         
         # Fetch the user's password
+        # Secure Query
         query = "SELECT password FROM users WHERE username = %s"
         result = db_query(query, (username,))
+
 
         # Check if there is a password
         if not result:
@@ -67,10 +68,10 @@ def validate_login(username, password):
 
 def get_id_by_username(username):
     # Construct the SQL query
+    # Secure Query
     query = "SELECT id FROM users WHERE username = %s"
-
-    # Execute the query and get the result
     result = db_query(query, (username,))
+
 
     # Check if 
     if result:
@@ -141,7 +142,19 @@ def send_recovery_password(email):
     
 
 def check_id_existence(id):
-    result = db_query("SELECT EXISTS(SELECT 1 FROM users WHERE id = %s);", (id,))
+    # Secure Query
+    query = "SELECT EXISTS(SELECT 1 FROM users WHERE id = %s);"
+    result = db_query(query, (id,))
+
+
+    return result[0][0]
+
+
+def check_order_id_existence(id):
+    # Secure Query
+    query = "SELECT EXISTS(SELECT 1 FROM all_orders WHERE id = %s);"
+    result = db_query(query, (id,))
+
     return result[0][0]
 
 
@@ -161,10 +174,7 @@ def create_user_folder(id):
     directory = os.getcwd()
 
     # Define the path for the user's directory
-    user_directory = os.path.join(directory, "database", "accounts", str(id))
-
-    # Create the user's directory and any missing parent directories
-    os.makedirs(user_directory, exist_ok=True)
+    user_directory = os.path.join(directory, "database", "accounts")
 
     # Set the paths for the source and destination files
     src_path = os.path.join(directory, "static", "images", "default.png")
@@ -180,9 +190,10 @@ def create_user(username, password, email):
     id = str(generate_random_id())
     
     # Add the user to the USER table
-    db_query("INSERT INTO users (id, username, password, email, admin) VALUES (%s, %s, %s, %s, %s);",
-            (id, username, password, email, False)
-    )
+    # Secure Query
+    query = "INSERT INTO users (id, username, password, email, admin) VALUES (%s, %s, %s, %s, %s);"
+    db_query(query, (id, username, password, email, False))
+
 
     # Create a folder for the user
     create_user_folder(id)
@@ -194,13 +205,9 @@ def create_user(username, password, email):
 def change_password(id, password):
 
     # Build the query to update the password in the user's table
-    update_query = 'UPDATE users SET password = %s WHERE id = %s'
-
-    # Set the parameters for the query
-    update_params = (password, id)
-
-    # Execute the query
-    db_query(update_query, update_params)
+    # Secure Query
+    query = 'UPDATE users SET password = %s WHERE id = %s'
+    db_query(query, (password, id))
 
 
 def update_username(id, new_username):
@@ -209,35 +216,43 @@ def update_username(id, new_username):
     old_username = search_user_by_id(id)[1]
     
     # Construct the SQL query
-    query = "SELECT EXISTS(SELECT * FROM information_schema.tables WHERE table_name=%s)"
-
-    # Execute the query and get the result
+    # Secure Query
+    query = "SELECT EXISTS(SELECT * FROM information_schema.tables WHERE table_name=%s_cart);"
     result = db_query(query, (old_username,))
+
+
     if result[0][0]:
 
         # Build the query to alterate the statement username's table
-        alter_query = f'ALTER TABLE "{old_username}" RENAME TO "{new_username}";'
+        # Secure Query
+        query = "ALTER TABLE %s_cart RENAME TO %s_cart;"
+        db_query(query, (old_username.lower(), new_username.lower()))
 
-        # Execute the query
-        db_query(alter_query)
+
+    query = "SELECT EXISTS(SELECT * FROM information_schema.tables WHERE table_name=%s_orders);"
+    result = db_query(query, (old_username,))
+    
+    if result[0][0]:
+
+        # Build the query to alterate the statement username's table
+        # Secure Query
+        query = "ALTER TABLE %s_orders RENAME TO %s_orders;"
+        db_query(query, (old_username.lower(), new_username.lower()))
+
 
     # Build the query to update the username in the user's table
-    update_query = 'UPDATE users SET username = %s WHERE id = %s'
-
-    # Set the parameters for the query
-    update_params = (new_username, id)
-
-    # Execute the query
-    db_query(update_query, update_params)
+    # Secure Query
+    query = "UPDATE users SET username = %s WHERE id = %s"
+    db_query(query, (new_username, id))
 
 
 def search_user_by_id(id):
 
     # Construct the SQL query
+    # Secure Query
     query = "SELECT * FROM users WHERE id = %s"
-
-    # Execute the query and get the result
     result = db_query(query, (id,))
+
 
     # If no user is found, return None
     if not result:
@@ -250,32 +265,23 @@ def search_user_by_id(id):
 def update_email(id, email):
 
     # Build the query to update the email in the user's table
-    update_query = 'UPDATE users SET email = %s WHERE id = %s'
-
-    # Set the parameters for the query
-    update_params = (email, id)
-
-    # Execute the query
-    db_query(update_query, update_params)
+    # Secure Query
+    query = "UPDATE users SET email = %s WHERE id = %s"
+    db_query(query, (email, id))
 
 
 def update_password(id, password):
 
     # Build the query to update the password in the user's table
-    update_query = 'UPDATE users SET password = %s WHERE id = %s'
-
-    # Set the parameters for the query
-    update_params = (password, id)
-
-    # Execute the query
-    db_query(update_query, update_params)
+    # Secure Query
+    query = "UPDATE users SET password = %s WHERE id = %s"
+    db_query(query, (password, id))
 
 
 def get_username_by_id(id):
     # Construct the SQL query to retrieve the username
+    # Secure Query
     query = "SELECT username FROM users WHERE id = %s"
-    
-    # Execute the query and get the result
     result = db_query(query, (id,))
 
     # Check if the username was found
@@ -293,9 +299,8 @@ def get_username_by_id(id):
 def get_user_role(id):
 
     # Construct the SQL query to retrieve the username
+    # Secure Query
     query = "SELECT admin FROM users WHERE id = %s"
-    
-    # Execute the query and get the result
     result = db_query(query, (id,))
 
     # Check if the username was found
@@ -308,3 +313,78 @@ def get_user_role(id):
 
         # If it wasn't return None
         return None
+
+
+def compose_email_body(products, order_id):
+    # Read the HTML and CSS files
+    if os.name == "nt":
+        # Get the current working directory
+        current_directory = os.path.dirname(os.path.abspath(__file__)).split("\\handlers")[0]
+    else:
+        # Get the current working directory
+        current_directory = os.path.dirname(os.path.abspath(__file__)).split("/handlers")[0]
+
+    with open(current_directory + '/templates/email_order.html', 'r', encoding='utf8') as html_file:
+        email_template = html_file.read()
+
+    with open(current_directory + '/static/css/email_order.css', 'r', encoding='utf8') as css_file:
+        css_styles = css_file.read()
+
+    # Create a context dictionary with the products and total_price
+    context = {
+        'products': products,
+        'total_price': calculate_total_price(products),  # Calculate the total price here]
+        'order_id': order_id
+    }
+
+    # Render the email template with the context
+    body = render_template_string(email_template, **context)
+    body = body.replace('{{ css_styles }}', css_styles)
+
+    return body
+
+def calculate_total_price(products):
+    total_price = 0
+    for product in products:
+        total_price += int(product['quantity']) * float(product['price'])
+    return total_price
+
+
+def get_orders_by_user_id(id):
+
+    username = get_username_by_id(id).lower()
+
+    # Check if table exists
+    # Secure Query
+    query = "SELECT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name=%s_orders);"
+    result = db_query(query, (username,))
+
+    if not result[0][0]:
+        return None
+
+    # Secure Query
+    query = "SELECT * FROM %s_orders;"
+    results = db_query(query, (username,))
+
+    # Check if the user has any orders
+    if not results:
+        return None
+
+    products = []
+    for row in results:
+        order_id = row[0]
+        order_address = row[2]
+        order_Date = row[4]
+        for element in row[1]:
+            product = {
+                "order_id" : order_id,
+                "product_id": element,
+                "quantity": row[1][element],
+                "name": get_product_by_id(element)["name"],
+                "price": get_product_by_id(element)["price"],
+                "address": order_address,
+                "date": order_Date
+            }
+            products.append(product)
+
+    return products

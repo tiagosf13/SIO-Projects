@@ -9,7 +9,7 @@ const minMaxPriceLabel = document.getElementById('minMaxPriceLabel');
 // Function to update price labels based on the slider values
 function updatePriceLabels() {
     const [minPrice, maxPrice] = priceSlider.noUiSlider.get();
-    minMaxPriceLabel.textContent = `Price Range: $${minPrice} - $${maxPrice}`;
+    minMaxPriceLabel.textContent = `Price Range: ${minPrice} € - ${maxPrice} €`;
 }
 
 

@@ -1,8 +1,35 @@
 from handlers.DataBaseCoordinator import db_query
 
+def get_orders(username_orders):
+
+    # Secure Query
+    query = "SELECT * FROM %s"
+    result = db_query(query, (username_orders,))
+
+
+    orders = {}
+
+    for element in result:
+        current_order_id = element[2]
+
+        if current_order_id not in orders:
+            orders[current_order_id] = []
+        else:
+            orders[current_order_id].append({
+                "product_id": element[0],
+                "quantity": element[1],
+                "name" : get_product_by_id(element[0])["name"],
+                "price" : get_product_by_id(element[0])["price"]
+            })
+    return orders
+
+
+
 def get_all_products():
+
+    # Secure Query
     query = "SELECT * FROM products"
-    results = db_query(query)  # Assuming db_query returns a list of rows
+    results = db_query(query)
 
     products = []
     for row in results:
@@ -19,6 +46,7 @@ def get_all_products():
     return products
 
 def verify_product_id_exists(id):
+    # Secure Query
     query = "SELECT * FROM products WHERE id = %s"
     results = db_query(query, (id,))
 
@@ -29,9 +57,10 @@ def verify_product_id_exists(id):
     
 
 def get_product_by_id(id):
-
+    # Secure Query
     query = "SELECT * FROM products WHERE id = %s"
     results = db_query(query, (id,))
+
 
     if len(results) == 0:
         return None
@@ -54,6 +83,7 @@ def get_product_reviews(product_id):
     if not verify_product_id_exists(product_id):
         return None
 
+    # Secure Query
     query = "SELECT * FROM reviews WHERE product_id = %s"
     results = db_query(query, (product_id,))
 
@@ -72,16 +102,20 @@ def get_product_reviews(product_id):
 
 
 def get_cart(username_cart):
-    query = "SELECT * FROM " + username_cart
+    # Secure Query
+    query = "SELECT * FROM %s"
     result = db_query(query, (username_cart,))
+
 
     cart = []
 
     for element in result:
         if not verify_product_id_exists(element[0]):
-            # remove the product from the cart
-            query = "DELETE FROM " + username_cart + " WHERE product_id = %s"
-            db_query(query, (element[0],))
+
+            # Secure Query
+            query = "DELETE FROM %s WHERE product_id = %s"
+            db_query(query, (username_cart, element[0]))
+
         else:
             cart.append({
                 "product_id": element[0],
@@ -90,3 +124,15 @@ def get_cart(username_cart):
                 "price" : get_product_by_id(element[0])["price"]
             })
     return cart
+
+
+def get_user_email(id):
+    # Secure Query
+    query = "SELECT email FROM users WHERE id = %s"
+    results = db_query(query, (id,))
+
+    
+    if len(results) == 0:
+        return None
+    else:
+        return results[0][0]

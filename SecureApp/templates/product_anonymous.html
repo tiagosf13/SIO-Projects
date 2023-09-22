@@ -12,12 +12,12 @@
     </header>
     <div class="product-details">
         <!-- Display product image, price, and ID here -->
-        <img src="/get_image/catalog/{{productId}}.png" alt="Product Image">
+        <img src="/get_image/catalog/{{product.id}}.png" alt="Product Image">
         <div class="product-info">
-            <p class="product-name">{{productName}}</p>
-            <p class="product-description">{{productDescription}}</p>
-            <p style="color: red">ID: {{productId}}</p>
-            <p style="color: green">Price: {{productPrice}} €</p>
+            <p class="product-name">{{product.name}}</p>
+            <p class="product-description">{{product.description}}</p>
+            <p style="color: red">ID: {{product.id}}</p>
+            <p style="color: green">Price: {{product.price}} €</p>
         </div>
     </div>
     
@@ -33,7 +33,7 @@
 
     <!-- Include the external JavaScript file -->
     <script type="text/javascript">
-        const productId = '{{productId}}'; // Assign the product ID to a JavaScript variable
+        const productId = '{{product.id}}'; // Assign the product ID to a JavaScript variable
     </script>
     <script type="text/javascript" src="{{url_for('static', filename='js/product_anonymous.js')}}"></script>
     </script>
