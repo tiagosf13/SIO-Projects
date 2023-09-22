@@ -1,11 +1,9 @@
-from handlers.DataBaseCoordinator import db_query
-import random
+import os, random, shutil
+from flask import render_template_string
 from string import ascii_uppercase, ascii_lowercase
 from handlers.EmailHandler import send_email
-import os
-import shutil
+from handlers.DataBaseCoordinator import db_query
 from handlers.ProductManagement import get_product_by_id
-from flask import render_template_string
 
 
 

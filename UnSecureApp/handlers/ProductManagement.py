@@ -1,9 +1,7 @@
-import random, os
-from handlers.DataBaseCoordinator import db_query
+import random, os, json
 from datetime import datetime
-from handlers.DataBaseCoordinator import check_database_table_exists
-import json
 from handlers.Retrievers import get_product_by_id
+from handlers.DataBaseCoordinator import db_query, check_database_table_exists
 
 
 def verify_id_exists(id, table):

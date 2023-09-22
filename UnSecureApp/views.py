@@ -1,18 +1,16 @@
-import tempfile
-from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for, send_from_directory, send_file
-from handlers.UserManagement import search_user_by_email, validate_login, get_id_by_username, check_order_id_existence
+import os, tempfile
+from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for, send_from_directory
+from handlers.UserManagement import update_username, search_user_by_id, update_email
+from handlers.UserManagement import get_user_role, compose_email_body, update_password
+from handlers.UserManagement import search_user_by_email, validate_login, get_id_by_username
 from handlers.UserManagement import search_user_by_username, send_recovery_password, create_user, get_orders_by_user_id
-from handlers.UserManagement import update_username, search_user_by_id, update_email, update_password
-from handlers.UserManagement import get_user_role
+from handlers.ProductManagement import create_review, set_cart_item, update_product_after_order, register_order
+from handlers.ProductManagement import create_product, remove_product, verify_id_exists, update_product_name, create_product_image
+from handlers.ProductManagement import update_product_description, update_product_price, update_product_category, update_product_quantity
+from handlers.EmailHandler import send_email_with_attachment, sql_to_pdf
+from handlers.DataBaseCoordinator import check_database_table_exists, db_query
 from handlers.Verifiers import check_username_exists, check_email_exists, check_product_in_cart
 from handlers.Retrievers import get_all_products, get_product_by_id, get_product_reviews, get_cart, verify_product_id_exists, get_user_email
-from handlers.ProductManagement import create_product, remove_product, verify_id_exists, update_product_name, create_product_image, register_order
-from handlers.ProductManagement import update_product_description, update_product_price, update_product_category, update_product_quantity   
-from handlers.ProductManagement import create_review, set_cart_item, update_product_after_order
-from handlers.DataBaseCoordinator import check_database_table_exists, db_query
-from handlers.UserManagement import compose_email_body
-from handlers.EmailHandler import send_email_with_attachment, sql_to_pdf
-import os
 
 
 
@@ -421,37 +419,36 @@ def add_item_to_cart(product_id):
 def remove_item_from_cart(product_id):
     username = session.get("username").lower()
 
-    #try:
-    data = request.get_json()
-    quantity = data.get('quantity')
+    try:
+        data = request.get_json()
+        quantity = data.get('quantity')
 
-    if check_product_in_cart(username + "_cart", product_id) == False or quantity <= 0:
-        return jsonify({'error': 'Product not in cart.'}), 500
-    else:
-        user_cart = get_cart(username + "_cart")
+        if check_product_in_cart(username + "_cart", product_id) == False or quantity <= 0:
+            return jsonify({'error': 'Product not in cart.'}), 500
+        else:
+            user_cart = get_cart(username + "_cart")
 
-        for product in user_cart:
-            if product["quantity"] == 0:
-                # Remove the product from the cart
-                # Secure Query
-                # query = "DELETE FROM %s WHERE product_id = %s"
-                # db_query(query, (username + "_cart", product["product_id"],))
+            for product in user_cart:
+                if product["quantity"] == 0:
+                    # Remove the product from the cart
+                    # Secure Query
+                    # query = "DELETE FROM %s WHERE product_id = %s"
+                    # db_query(query, (username + "_cart", product["product_id"],))
 
-                query = "DELETE FROM "+username+"_cart WHERE product_id = "+str(product["product_id"])+";"
-                db_query(query)
-            elif product["product_id"] == product_id:
-                product_stock = get_product_by_id(product_id)["stock"]
-                if product["quantity"] - quantity < 0:
-                    return jsonify({'error': 'Not enough stock.'}), 500
-                else:
-                    # You can add code here to update the user's cart in the database
-                    set_cart_item(username + "_cart", product_id, quantity, "remove")
-                    return jsonify({'message': 'Product added to the cart.'}), 200
+                    query = "DELETE FROM "+username+"_cart WHERE product_id = "+str(product["product_id"])+";"
+                    db_query(query)
+                elif product["product_id"] == product_id:
+                    if product["quantity"] - quantity < 0:
+                        return jsonify({'error': 'Not enough stock.'}), 500
+                    else:
+                        # You can add code here to update the user's cart in the database
+                        set_cart_item(username + "_cart", product_id, quantity, "remove")
+                        return jsonify({'message': 'Product added to the cart.'}), 200
 
-        return jsonify({'message': 'Product added to the cart.'}), 200
-    #except Exception as e:
-    #    print(e)
-    #    return jsonify({'error': str(e)}), 500
+            return jsonify({'message': 'Product added to the cart.'}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 500
 
 
 

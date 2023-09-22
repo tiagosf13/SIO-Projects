@@ -1,19 +1,16 @@
-from handlers.DataBaseCoordinator import read_json
+import os, smtplib
+from datetime import datetime
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
-import smtplib
 from reportlab.lib import colors
 from reportlab.lib.units import inch
-from reportlab.lib.colors import Color
 from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ParagraphStyle
-from reportlab.platypus import Table, TableStyle, SimpleDocTemplate, Paragraph, Spacer, PageBreak
-from handlers.DataBaseCoordinator import db_query
+from reportlab.platypus import Table, TableStyle, SimpleDocTemplate, Paragraph, Spacer
 from handlers.Retrievers import get_product_by_id
-import os
-from datetime import datetime
+from handlers.DataBaseCoordinator import db_query, read_json
 
 def get_id_by_username(username):
     # Construct the SQL query

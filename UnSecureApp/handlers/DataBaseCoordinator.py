@@ -1,6 +1,4 @@
-import os
-import json
-import psycopg2
+import os, json, psycopg2
 
 
 def read_json(filename):
