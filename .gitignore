@@ -1,3 +1,4 @@
-
-credentials/DataBaseCredentials.json
-credentials/EmailCredentials.json
+SecureApp/credentials/DataBaseCredentials.json
+SecureApp/credentials/EmailCredentials.json
+UnSecureApp/credentials/DataBaseCredentials.json
+UnSecureApp/credentials/EmailCredentials.json
