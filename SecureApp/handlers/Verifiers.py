@@ -26,6 +26,22 @@ def is_valid_table_name(table_name):
         return False
 
 
+def is_valid_review(review_text):
+    # Define a regular expression pattern to match valid review characters
+    valid_characters_pattern = re.compile(r'^[a-zA-Z0-9,.!?()\'" ]+$')
+
+    # Check if the review contains only valid characters
+    if not valid_characters_pattern.match(review_text):
+        return False
+
+    # You can add additional checks for specific patterns or keywords to prevent XSS
+    # For example, you can look for "<script>", "onload=", etc., and return False if found.
+
+    # If none of the checks above triggered a return False, the review is valid
+    return True
+
+
+
 
 def check_email_exists(email):
 

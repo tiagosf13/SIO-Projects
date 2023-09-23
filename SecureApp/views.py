@@ -9,7 +9,7 @@ from handlers.ProductManagement import create_product, remove_product, verify_id
 from handlers.ProductManagement import update_product_description, update_product_price, update_product_category, update_product_quantity
 from handlers.EmailHandler import send_email_with_attachment, sql_to_pdf
 from handlers.DataBaseCoordinator import check_database_table_exists, db_query
-from handlers.Verifiers import check_username_exists, check_email_exists, check_product_in_cart, is_valid_table_name
+from handlers.Verifiers import check_username_exists, check_email_exists, check_product_in_cart, is_valid_table_name, is_valid_review
 from handlers.Retrievers import get_all_products, get_product_by_id, get_product_reviews, get_cart, verify_product_id_exists, get_user_email
 
 
@@ -376,6 +376,9 @@ def add_review(product_id):
     # Get the review and rating from the request
     review = request.form.get("userReview")
     rating = request.form.get("rating")
+
+    if not is_valid_review(review):
+        return jsonify({'error': 'Invalid review.'}), 500
     
 
     # Create the review
