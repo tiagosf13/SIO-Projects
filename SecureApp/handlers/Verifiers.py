@@ -1,4 +1,4 @@
-from handlers.DataBaseCoordinator import db_query
+from handlers.DataBaseCoordinator import db_query, is_valid_table_name
 import re
 
 
@@ -11,19 +11,6 @@ def check_username_exists(username):
 
     # Return the boolean
     return result[0][0]
-
-def is_valid_table_name(table_name):
-    # Define a regular expression pattern to match valid table names
-    valid_table_name_pattern = re.compile(r'^[a-zA-Z0-9_]+$')
-
-    # Maximum table name length (adjust as needed)
-    max_table_name_length = 50
-
-    # Check if the table name matches the valid pattern and is not too long
-    if len(table_name) <= max_table_name_length and valid_table_name_pattern.match(table_name):
-        return True
-    else:
-        return False
 
 
 def is_valid_review(review_text):

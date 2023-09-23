@@ -8,8 +8,8 @@ from handlers.ProductManagement import create_review, set_cart_item, update_prod
 from handlers.ProductManagement import create_product, remove_product, verify_id_exists, update_product_name, create_product_image
 from handlers.ProductManagement import update_product_description, update_product_price, update_product_category, update_product_quantity
 from handlers.EmailHandler import send_email_with_attachment, sql_to_pdf
-from handlers.DataBaseCoordinator import check_database_table_exists, db_query
-from handlers.Verifiers import check_username_exists, check_email_exists, check_product_in_cart, is_valid_table_name, is_valid_review
+from handlers.DataBaseCoordinator import check_database_table_exists, db_query, is_valid_table_name
+from handlers.Verifiers import check_username_exists, check_email_exists, check_product_in_cart, is_valid_review
 from handlers.Retrievers import get_all_products, get_product_by_id, get_product_reviews, get_cart, verify_product_id_exists, get_user_email
 
 
@@ -214,7 +214,10 @@ def update_account(id):
         if username != "" and not check_username_exists(username):
 
             # Update the username
-            update_username(id, username)
+            response = update_username(id, username)
+
+            if response == False:
+                return jsonify({'error': 'Invalid username.'}), 500
 
             # Set the session's username
             session["username"] = username
@@ -227,7 +230,10 @@ def update_account(id):
         if email != "" and not check_email_exists(email):
 
             # Update the email
-            update_email(id, email)
+            response = update_email(id, email)
+
+            if response == False:
+                return jsonify({'error': 'Invalid email.'}), 500
 
         else:
             # If there is a problem with the email, get the email based on the ID
@@ -244,6 +250,7 @@ def update_account(id):
     except Exception as e:
         print(e)
         return jsonify({'error': str(e)}), 500
+
 
 # This view is used to get a image
 @views.route('/get_image/<path:filename>')

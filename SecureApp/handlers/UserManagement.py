@@ -4,7 +4,7 @@ from string import ascii_uppercase, ascii_lowercase
 from handlers.EmailHandler import send_email
 from handlers.DataBaseCoordinator import db_query
 from handlers.ProductManagement import get_product_by_id
-from handlers.Verifiers import is_valid_table_name
+from handlers.Verifiers import is_valid_table_name, is_valid_review
 
 
 
@@ -213,6 +213,10 @@ def change_password(id, password):
 
 def update_username(id, new_username):
 
+    # Verify if the username is valid
+    if not is_valid_review(new_username):
+        return False
+
     # Get the old username based on the ID
     old_username = search_user_by_id(id)[1]
     
@@ -264,6 +268,10 @@ def search_user_by_id(id):
 
 
 def update_email(id, email):
+
+    # Verify if the email is valid
+    if not is_valid_review(email):
+        return False
 
     # Build the query to update the email in the user's table
     # Secure Query
