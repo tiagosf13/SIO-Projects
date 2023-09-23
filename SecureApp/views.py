@@ -184,9 +184,15 @@ def check_email():
 @views.route('/update_account/<id>', methods=['POST'])
 def update_account(id):
     try:
-        # Set the user's account image file path
-        base_directory = os.getcwd()
-        accounts_directory = os.path.join(base_directory, "database", "accounts")
+
+        if os.name == "nt":
+            # Get the current working directory
+            current_directory = os.path.dirname(os.path.abspath(__file__)).split("\\handlers")[0]
+        else:
+            # Get the current working directory
+            current_directory = os.path.dirname(os.path.abspath(__file__)).split("/handlers")[0]
+            
+        accounts_directory = os.path.join(current_directory, "database", "accounts")
         os.makedirs(accounts_directory, exist_ok=True)  # Ensure the directory exists
 
         file_path = os.path.join(accounts_directory, f"{id}.png").replace("\\", "/")
