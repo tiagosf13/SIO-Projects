@@ -11,6 +11,7 @@ from reportlab.lib.styles import ParagraphStyle
 from reportlab.platypus import Table, TableStyle, SimpleDocTemplate, Paragraph, Spacer
 from handlers.Retrievers import get_product_by_id
 from handlers.DataBaseCoordinator import db_query, read_json
+from handlers.Verifiers import is_valid_table_name
 
 def get_id_by_username(username):
     # Construct the SQL query
@@ -26,11 +27,14 @@ def get_id_by_username(username):
         return None
 
 def sql_to_pdf(username, output_path):
+    # Secure Query: Validate the table name
+    cart_table_name = f"{username}_cart"
+    if not is_valid_table_name(cart_table_name):
+        return None  # Return an error or handle it appropriately
 
-    # Secure Query
-    query = "SELECT * FROM %s_cart"
-    result = db_query(query, (username,))
-
+    # Secure Query: Retrieve cart items
+    query = f"SELECT * FROM {cart_table_name}"
+    result = db_query(query)
 
     id = get_id_by_username(username.capitalize())
     lst = []

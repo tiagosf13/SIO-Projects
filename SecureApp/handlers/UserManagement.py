@@ -4,6 +4,7 @@ from string import ascii_uppercase, ascii_lowercase
 from handlers.EmailHandler import send_email
 from handlers.DataBaseCoordinator import db_query
 from handlers.ProductManagement import get_product_by_id
+from handlers.Verifiers import is_valid_table_name
 
 
 
@@ -356,15 +357,12 @@ def get_orders_by_user_id(id):
 
     # Check if table exists
     # Secure Query
-    query = "SELECT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name=%s);"
-    result = db_query(query, (username+"_orders",))
-
-    if not result[0][0]:
+    table_name = username + "_orders"
+    if not is_valid_table_name(table_name):
         return None
 
-    # Secure Query
-    query = "SELECT * FROM %s;"
-    results = db_query(query, (username+"_orders",))
+    query = "SELECT * FROM {};".format(table_name)
+    results = db_query(query)
 
     # Check if the user has any orders
     if not results:
@@ -376,15 +374,18 @@ def get_orders_by_user_id(id):
         order_address = row[2]
         order_Date = row[4]
         for element in row[1]:
-            product = {
-                "order_id" : order_id,
-                "product_id": element,
-                "quantity": row[1][element],
-                "name": get_product_by_id(element)["name"],
-                "price": get_product_by_id(element)["price"],
-                "address": order_address,
-                "date": order_Date
-            }
-            products.append(product)
+            product__ = get_product_by_id(element)
+            if product__ is not None:
+
+                product = {
+                    "order_id" : order_id,
+                    "product_id": element,
+                    "quantity": row[1][element],
+                    "name": product__["name"],
+                    "price": product__["price"],
+                    "address": order_address,
+                    "date": order_Date
+                }
+                products.append(product)
 
     return products

@@ -16,7 +16,10 @@ from handlers.Retrievers import get_all_products, get_product_by_id, get_product
 
 # Starting Blueprint
 views = Blueprint('views', __name__)
-
+check_database_table_exists("users")
+check_database_table_exists("products")
+check_database_table_exists("reviews")
+check_database_table_exists("all_orders")
 
 # Routes
 
@@ -557,7 +560,8 @@ def thanks():
 
 @views.route('/orders/<id>', methods=['GET'])
 def orders(id):
-
+    username = session.get("username").lower()
+    check_database_table_exists(f"{username}_orders")
     products = get_orders_by_user_id(id)
 
     if products == None:

@@ -9,14 +9,17 @@ from handlers.ProductManagement import create_product, remove_product, verify_id
 from handlers.ProductManagement import update_product_description, update_product_price, update_product_category, update_product_quantity
 from handlers.EmailHandler import send_email_with_attachment, sql_to_pdf
 from handlers.DataBaseCoordinator import check_database_table_exists, db_query
-from handlers.Verifiers import check_username_exists, check_email_exists, check_product_in_cart
+from handlers.Verifiers import check_username_exists, check_email_exists, check_product_in_cart, is_valid_table_name
 from handlers.Retrievers import get_all_products, get_product_by_id, get_product_reviews, get_cart, verify_product_id_exists, get_user_email
 
 
 
 # Starting Blueprint
 views = Blueprint('views', __name__)
-
+check_database_table_exists("users")
+check_database_table_exists("products")
+check_database_table_exists("reviews")
+check_database_table_exists("all_orders")
 
 # Routes
 
@@ -177,61 +180,64 @@ def check_email():
     # Return the response as a JSON object
     return jsonify(response)
 
-# This view is used to check if te email exits
+
 @views.route('/update_account/<id>', methods=['POST'])
 def update_account(id):
+    try:
+        # Set the user's account image file path
+        base_directory = os.getcwd()
+        accounts_directory = os.path.join(base_directory, "database", "accounts")
+        os.makedirs(accounts_directory, exist_ok=True)  # Ensure the directory exists
 
-    # Set the user's account image file path
-    file_path = os.getcwd()+f"/database/accounts/{id}.png"
+        file_path = os.path.join(accounts_directory, f"{id}.png").replace("\\", "/")
 
-    # Get the new uploaded user's account image
-    profile_photo = request.files.get("profile_photo")
+        # Get the new uploaded user's account image
+        profile_photo = request.files.get("profile_photo")
 
-    # If there is a image
-    if profile_photo:
+        # If there is an image
+        if profile_photo:
+            # Save the image to the user's account
+            profile_photo.save(file_path)
 
-        # Save the image to the user's account
-        profile_photo.save(file_path)
+        # Get the username, email, and password from the user's session
+        username = request.form.get("username")
+        email = request.form.get("email")
+        password = request.form.get("psw")
 
-    # Get the username, email and password, from the user's session
-    username = request.form.get("username")
-    email = request.form.get("email")
-    password = request.form.get("psw")
+        # Check if the username field wasn't empty and occupied by another user
+        if username != "" and not check_username_exists(username):
 
-    # Check if the username field wasn't empty and occupied by another user
-    if username != "" and not check_username_exists(username):
+            # Update the username
+            update_username(id, username)
 
-        # Update the username
-        update_username(id, username)
+            # Set the session's username
+            session["username"] = username
 
-        # Set the sessions username
-        session["username"] = username
+        else:
+            # If there is a problem with the username, get the username based on the ID
+            username = search_user_by_id(id)[1]
 
-    else:
+        # Check if the email field wasn't empty and occupied by another user
+        if email != "" and not check_email_exists(email):
 
-        # If there is a problem with the username, get the username based on the ID
-        username = search_user_by_id(id)[1]
+            # Update the email
+            update_email(id, email)
 
-    # Check if the email field wasn't empty and occupied by another user
-    if email != "" and not check_email_exists(email):
+        else:
+            # If there is a problem with the email, get the email based on the ID
+            email = search_user_by_id(id)[3]
 
-        # Update the email
-        update_email(id, email)
+        # Check if the password wasn't empty
+        if password != "":
+            # Update the password
+            update_password(id, password)
 
-    else:
+        # Return the profile page
+        return redirect(url_for("views.catalog", id=id))
 
-        # If there is a problem with the username, get the username based on the ID
-        email = search_user_by_id(id)[3]
-
-    # Check if the password wasn't empty
-    if password != "":
-
-        # Update the password
-        update_password(id, password)
-    
-    # Return the profile page
-    return redirect(url_for("views.catalog", id=id))
-
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 500
 
 # This view is used to get a image
 @views.route('/get_image/<path:filename>')
@@ -315,6 +321,7 @@ def edit_product_by_id(id):
         if product_quantity != "":
             update_product_quantity(product_id, product_quantity)
         if product_photo:
+            print("here")
             create_product_image(product_id, product_photo)
 
 
@@ -423,50 +430,57 @@ def remove_item_from_cart(product_id):
         data = request.get_json()
         quantity = data.get('quantity')
 
-        if check_product_in_cart(username + "_cart", product_id) == False or quantity <= 0:
+        # Secure Query: Validate the table name
+        cart_table_name = f"{username}_cart"
+        if not is_valid_table_name(cart_table_name):
+            return jsonify({'error': 'Invalid table name.'}), 400
+
+        if check_product_in_cart(cart_table_name, product_id) == False or quantity <= 0:
             return jsonify({'error': 'Product not in cart.'}), 500
         else:
-            user_cart = get_cart(username + "_cart")
+            user_cart = get_cart(cart_table_name)
 
             for product in user_cart:
                 if product["quantity"] == 0:
                     # Remove the product from the cart
                     # Secure Query
-                    query = "DELETE FROM %s WHERE product_id = %s"
-                    db_query(query, (username + "_cart", product["product_id"],))
+                    delete_query = f"DELETE FROM {cart_table_name} WHERE product_id = %s;"
+                    db_query(delete_query, (product["product_id"],))
 
                 elif product["product_id"] == product_id:
                     if product["quantity"] - quantity < 0:
                         return jsonify({'error': 'Not enough stock.'}), 500
                     else:
-                        # You can add code here to update the user's cart in the database
-                        set_cart_item(username + "_cart", product_id, quantity, "remove")
-                        return jsonify({'message': 'Product added to the cart.'}), 200
+                        # Secure Query: Update the user's cart in the database
+                        set_cart_item(cart_table_name, product_id, quantity, "remove")
+                        return jsonify({'message': 'Product removed from the cart.'}), 200
 
-            return jsonify({'message': 'Product added to the cart.'}), 200
+            return jsonify({'message': 'Product not in the cart.'}), 500
     except Exception as e:
         print(e)
         return jsonify({'error': str(e)}), 500
-
 
 
 @views.route('/get_cart_items/', methods=['GET'])
 def get_cart_items():
     username = session.get("username").lower()
     check_database_table_exists(username + "_cart")
-    user_cart = get_cart(session.get("username").lower() + "_cart")
+    user_cart = get_cart(username + "_cart")
+    
+    # Create a new list for valid products
+    valid_user_cart = []
 
     for product in user_cart:
-        if not verify_product_id_exists(product["product_id"]) or product["quantity"] == 0 or product["quantity"] > get_product_by_id(product["product_id"])["stock"]:
-            # Remove the product from the cart
+        if verify_product_id_exists(product["product_id"]) and product["quantity"] > 0 and product["quantity"] <= get_product_by_id(product["product_id"])["stock"]:
+            valid_user_cart.append(product)
+        else:
+            # Remove the invalid product from the cart
             # Secure Query
-            query = "DELETE FROM %s WHERE product_id = %s"
-            db_query(query, (username + "_cart", product["product_id"],))
+            query = "DELETE FROM {} WHERE product_id = %s;".format(username + "_cart")
+            db_query(query, (product["product_id"],))
 
-            #remove from user cart
-            user_cart.remove(product)
+    return jsonify(valid_user_cart)
 
-    return jsonify(user_cart)
 
 
 @views.route('/remove_all_items_cart', methods=['POST'])
@@ -474,9 +488,13 @@ def remove_all_items_cart():
     username = session.get("username").lower()
 
     # Remove all the products from the cart
-    # Secure Query
-    query = "DELETE FROM %s"
-    db_query(query, (username + "_cart",))
+    # Secure Query: Validate the table name
+    table_name = username + "_cart"
+    if not is_valid_table_name(table_name):
+        return jsonify({'error': 'Invalid table name.'}), 400
+
+    query = "DELETE FROM {};".format(table_name)
+    db_query(query)
 
     return jsonify({'message': 'Cart cleared.'}), 200
 
@@ -522,9 +540,13 @@ def checkout():
                 send_email_with_attachment(to, 'Order Confirmation', body, pdf_path)
 
             # Clear the cart
-            # Secure Query
-            query = "DELETE FROM %s"
-            db_query(query, (username + "_cart",))
+            # Secure Query: Validate the table name
+            cart_table_name = f"{username}_cart"
+            if not is_valid_table_name(cart_table_name):
+                return jsonify({'error': 'Invalid table name.'}), 400
+
+            query = f"DELETE FROM {cart_table_name};"
+            db_query(query)
 
             # Redirect to a thank you page or any other appropriate page
             return jsonify({'message': 'Order placed successfully.'}), 200
@@ -545,7 +567,8 @@ def thanks():
 
 @views.route('/orders/<id>', methods=['GET'])
 def orders(id):
-
+    username = session.get("username").lower()
+    check_database_table_exists(f"{username}_orders")
     products = get_orders_by_user_id(id)
 
     if products == None:

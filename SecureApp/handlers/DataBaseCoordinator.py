@@ -1,4 +1,4 @@
-import os, json, psycopg2
+import os, json, psycopg2, re
 
 
 def read_json(filename):
@@ -16,6 +16,20 @@ def read_json(filename):
     with open(full_file_path, "r", encoding="utf8") as file:
         data = json.load(file)
     return data
+
+
+def is_valid_table_name(table_name):
+    # Define a regular expression pattern to match valid table names
+    valid_table_name_pattern = re.compile(r'^[a-zA-Z0-9_]+$')
+
+    # Maximum table name length (adjust as needed)
+    max_table_name_length = 50
+
+    # Check if the table name matches the valid pattern and is not too long
+    if len(table_name) <= max_table_name_length and valid_table_name_pattern.match(table_name):
+        return True
+    else:
+        return False
 
 
 def db_query(query, params=None):
@@ -73,36 +87,42 @@ def db_query(query, params=None):
     
 
 def check_database_table_exists(table_name):
-        # Construct the SQL query
+    try:
 
+        if not is_valid_table_name(table_name):
+            return False
         # Secure Query
         query = "SELECT EXISTS(SELECT * FROM information_schema.tables WHERE table_name=%s)"
         result = db_query(query, (table_name,))
-        
+
         if not result[0][0]:
             if table_name == "users":
                 # Construct the SQL query
                 query = "CREATE TABLE users (id SERIAL PRIMARY KEY, username VARCHAR(255), password VARCHAR(255), email VARCHAR(255), admin BOOLEAN)"
+                db_query(query, ())
+
             elif table_name == "products":
                 query = "CREATE TABLE products (id SERIAL PRIMARY KEY, name VARCHAR(255), description VARCHAR(255), price VARCHAR(255), category VARCHAR(255), stock INTEGER)"
+                db_query(query, ())
+
             elif table_name == "reviews":
                 query = "CREATE TABLE reviews (id SERIAL PRIMARY KEY, product_id INTEGER, user_id INTEGER, rating INTEGER, review VARCHAR(255))"
+                db_query(query, ())
+
             elif "_cart" in table_name:
-                # Secure Query
-                params = table_name
-                query = "CREATE TABLE %s (product_id SERIAL PRIMARY KEY, quantity INTEGER)"
+                # Construct the SQL query
+                query = f"CREATE TABLE {table_name} (product_id SERIAL PRIMARY KEY, quantity INTEGER)"
+                db_query(query, ())
 
 
             elif "all_orders" in table_name:
                 query = "CREATE TABLE all_orders (id SERIAL PRIMARY KEY, user_id INTEGER, order_date VARCHAR(255))"
+                db_query(query, ())
+
             else:
-                # Secure Query
-                params = table_name
-                query = "CREATE TABLE %s (id SERIAL PRIMARY KEY, products JSON, total_price VARCHAR(255), shipping_address VARCHAR(255), order_date VARCHAR(255))"
-                
-            
-            # Secure Query
-            if params:
-                db_query(query, params)
-            else:
-                db_query(query)
+                # Construct the SQL query
+                query = f"CREATE TABLE {table_name} (id SERIAL PRIMARY KEY, products JSON, total_price VARCHAR(255), shipping_address VARCHAR(255), order_date VARCHAR(255))"
+                db_query(query, ())
+
+    except Exception as e:
+        print(e)

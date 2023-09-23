@@ -2,17 +2,23 @@ import random, os, json
 from datetime import datetime
 from handlers.Retrievers import get_product_by_id
 from handlers.DataBaseCoordinator import db_query, check_database_table_exists
+from handlers.Verifiers import is_valid_table_name
 
 
 def verify_id_exists(id, table):
-    # Secure Query
-    query = "SELECT * FROM %s WHERE id= %s"
-    results = db_query(query, (table, id,))
+    # Secure Query: Validate the table name
+    if not is_valid_table_name(table):
+        return False  # Return an error or handle it appropriately
+
+    # Secure Query: Check if the ID exists in the specified table
+    query = "SELECT * FROM {} WHERE id = %s;".format(table)
+    results = db_query(query, (id,))
 
     if len(results) == 0:
         return False
     else:
         return True
+    
 
 def generate_random_product_id(table):
     # Generate a random ID
@@ -26,20 +32,30 @@ def generate_random_product_id(table):
 
 
 def create_product_image(id, product_photo):
-    # Get the current working directory
-    directory = os.getcwd()
+    try:
+        # Get the current working directory
+        directory = os.getcwd()
 
-    # Define the path for the user's directory
-    user_directory = os.path.join(directory, "catalog")
+        # Define the path for the product image directory
+        product_image_directory = os.path.join(directory, "catalog")
 
-    # Create the user's directory and any missing parent directories
-    os.makedirs(user_directory, exist_ok=True)
+        # Create the product image directory and any missing parent directories
+        os.makedirs(product_image_directory, exist_ok=True)
 
-    if os.path.exists(os.path.join(user_directory, f"{id}.png")):
-        os.remove(os.path.join(user_directory, f"{id}.png"))
+        # Construct the full path for the product image file
+        product_image_path = os.path.join(product_image_directory, f"{id}.png")
 
-    # Save the product photo
-    product_photo.save(os.path.join(user_directory, f"{id}.png"))
+        # Check if the product image file already exists and remove it
+        if os.path.exists(product_image_path):
+            print("Removing existing product image file...")
+            print(product_image_path)
+            os.remove(product_image_path)
+
+        # Save the product photo to the specified path
+        product_photo.save(product_image_path)
+
+    except Exception as e:
+        print(e)  # Handle or log any exceptions that occur during this process
 
 
 def create_product(product_name, product_description, product_price, product_category, product_quantity, product_photo):
@@ -130,37 +146,37 @@ def create_review(id, user_id, review, rating):
 
 
 def set_cart_item(table_name, product_id, quantity, operation):
+    # Secure Query: Validate the table name
+    if not is_valid_table_name(table_name):
+        return False  # Return an error or handle it appropriately
 
-    #check if the product is already in the cart
-    # Secure Query
-    query = "SELECT * FROM %s WHERE product_id = %s"
-    results = db_query(query,(table_name, product_id,))
-    
-    if operation == "remove" and len(results) == 0:
-        return False
+    # Secure Query: Check if the product is already in the cart
+    query = "SELECT * FROM {} WHERE product_id = %s".format(table_name)
+    results = db_query(query, (product_id,))
 
     if len(results) != 0:
-        #update the quantity
+        # Update the quantity
         if operation == "add":
-            # Secure Query
-            query = "UPDATE %s SET quantity = quantity + %s WHERE product_id = %s"
+            # Secure Query: Update the quantity
+            update_query = "UPDATE {} SET quantity = quantity + %s WHERE product_id = %s".format(table_name)
         else:
-            # Secure Query
-            query = "UPDATE %s SET quantity = quantity - %s WHERE product_id = %s"
-        # Secure Query
-        db_query(query, (table_name, quantity, product_id))
+            # Secure Query: Update the quantity
+            update_query = "UPDATE {} SET quantity = quantity - %s WHERE product_id = %s".format(table_name)
+
+        # Secure Query: Execute the update
+        db_query(update_query, (quantity, product_id))
         return True
     else:
-        #add the product to the cart
-        # Secure Query
-        query = "INSERT INTO %s (product_id,quantity) VALUES (%s,%s);"
-        db_query(query, (table_name, product_id, quantity))
+        # Add the product to the cart
+        # Secure Query: Insert into the cart
+        insert_query = "INSERT INTO {} (product_id, quantity) VALUES (%s, %s)".format(table_name)
+        db_query(insert_query, (product_id, quantity))
         return True
+
 
 
 def register_order(username, user_id, order_details, products):
-
-    #try:
+    try:
         check_database_table_exists(f"{username}_orders")
         products_to_register = {}
         total_price = 0
@@ -170,17 +186,23 @@ def register_order(username, user_id, order_details, products):
 
         order_id = str(generate_random_product_id("all_orders"))
         time = datetime.now().strftime("%d-%m-%Y %H:%M")
-        # register in all orders
-        # Secure Query
-        query = "INSERT INTO all_orders (id, user_id, order_date) VALUES (%s, %s, %s);"
-        db_query(query, (order_id, user_id, time))
-
-        # Secure Query
-        query = "INSERT INTO %s_orders (id, products, total_price, shipping_address, order_date) VALUES (%s, %s, %s, %s, %s);"
-        db_query(query, (username, order_id, json.dumps(products_to_register), total_price, order_details["shipping_address"], time))
         
+        # Register in all orders
+        # Secure Query
+        all_orders_query = "INSERT INTO all_orders (id, user_id, order_date) VALUES (%s, %s, %s);"
+        db_query(all_orders_query, (order_id, user_id, time))
+
+        # Register in user-specific orders table
+        # Secure Query: Validate the table name
+        user_orders_table = f"{username}_orders"
+        if not is_valid_table_name(user_orders_table):
+            return False, None
+
+        user_orders_query = "INSERT INTO {} (id, products, total_price, shipping_address, order_date) VALUES (%s, %s, %s, %s, %s);".format(user_orders_table)
+        db_query(user_orders_query, (order_id, json.dumps(products_to_register), total_price, order_details["shipping_address"], time))
+
         return True, order_id
-    #except:
+    except:
         return False, None
     
 

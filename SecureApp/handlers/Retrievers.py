@@ -1,4 +1,5 @@
 from handlers.DataBaseCoordinator import db_query
+from handlers.Verifiers import is_valid_table_name
 
 def get_orders(username_orders):
 
@@ -103,9 +104,11 @@ def get_product_reviews(product_id):
 
 def get_cart(username_cart):
     # Secure Query
-    query = "SELECT * FROM %s"
-    result = db_query(query, (username_cart,))
+    if not is_valid_table_name(username_cart):
+        return []
 
+    query = "SELECT * FROM {};".format(username_cart)
+    result = db_query(query)
 
     cart = []
 
@@ -113,15 +116,16 @@ def get_cart(username_cart):
         if not verify_product_id_exists(element[0]):
 
             # Secure Query
-            query = "DELETE FROM %s WHERE product_id = %s"
-            db_query(query, (username_cart, element[0]))
+            if is_valid_table_name(username_cart):
+                delete_query = "DELETE FROM {} WHERE product_id = %s;".format(username_cart)
+                db_query(delete_query, (element[0],))
 
         else:
             cart.append({
                 "product_id": element[0],
                 "quantity": element[1],
-                "name" : get_product_by_id(element[0])["name"],
-                "price" : get_product_by_id(element[0])["price"]
+                "name": get_product_by_id(element[0])["name"],
+                "price": get_product_by_id(element[0])["price"]
             })
     return cart
 
