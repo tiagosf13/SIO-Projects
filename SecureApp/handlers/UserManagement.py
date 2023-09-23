@@ -217,27 +217,27 @@ def update_username(id, new_username):
     
     # Construct the SQL query
     # Secure Query
-    query = "SELECT EXISTS(SELECT * FROM information_schema.tables WHERE table_name=%s_cart);"
-    result = db_query(query, (old_username,))
+    query = "SELECT EXISTS(SELECT * FROM information_schema.tables WHERE table_name=%s);"
+    result = db_query(query, (old_username+"_cart",))
 
 
     if result[0][0]:
 
         # Build the query to alterate the statement username's table
         # Secure Query
-        query = "ALTER TABLE %s_cart RENAME TO %s_cart;"
-        db_query(query, (old_username.lower(), new_username.lower()))
+        query = "ALTER TABLE %s RENAME TO %s;"
+        db_query(query, (old_username.lower()+"_cart", new_username.lower()+"_cart"))
 
 
-    query = "SELECT EXISTS(SELECT * FROM information_schema.tables WHERE table_name=%s_orders);"
-    result = db_query(query, (old_username,))
+    query = "SELECT EXISTS(SELECT * FROM information_schema.tables WHERE table_name=%s);"
+    result = db_query(query, (old_username+"_orders",))
     
     if result[0][0]:
 
         # Build the query to alterate the statement username's table
         # Secure Query
-        query = "ALTER TABLE %s_orders RENAME TO %s_orders;"
-        db_query(query, (old_username.lower(), new_username.lower()))
+        query = "ALTER TABLE %s RENAME TO %s;"
+        db_query(query, (old_username.lower()+"_orders", new_username.lower()+"_orders"))
 
 
     # Build the query to update the username in the user's table
@@ -356,15 +356,15 @@ def get_orders_by_user_id(id):
 
     # Check if table exists
     # Secure Query
-    query = "SELECT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name=%s_orders);"
-    result = db_query(query, (username,))
+    query = "SELECT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name=%s);"
+    result = db_query(query, (username+"_orders",))
 
     if not result[0][0]:
         return None
 
     # Secure Query
-    query = "SELECT * FROM %s_orders;"
-    results = db_query(query, (username,))
+    query = "SELECT * FROM %s;"
+    results = db_query(query, (username+"_orders",))
 
     # Check if the user has any orders
     if not results:

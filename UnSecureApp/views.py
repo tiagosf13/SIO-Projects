@@ -465,7 +465,9 @@ def get_cart_items():
             # query = "DELETE FROM %s WHERE product_id = %s"
             # db_query(query, (username + "_cart", product["product_id"],))
 
-            query = "DELETE FROM "+username+"_cart WHERE product_id = "+str(product["product_id"])+";"
+            username = username + "_cart"
+
+            query = "DELETE FROM "+username+" WHERE product_id = "+str(product["product_id"])+";"
             db_query(query)
             #remove from user cart
             user_cart.remove(product)

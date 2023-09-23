@@ -94,7 +94,7 @@ def get_product_reviews(product_id):
     #query = "SELECT * FROM reviews WHERE product_id = %s"
     #results = db_query(query, (product_id,))
 
-    query = "SELECT * FROM reviews WHERE product_id = "+str(product_id)
+    query = "SELECT * FROM reviews WHERE product_id = "+str(product_id) + ";"
 
     results = db_query(query)
     reviews = []
@@ -128,7 +128,7 @@ def get_cart(username_cart):
             # query = "DELETE FROM %s WHERE product_id = %s"
             # db_query(query, (username_cart, element[0]))
 
-            query = "DELETE FROM " + username_cart + " WHERE product_id = " + element[0]
+            query = "DELETE FROM " + username_cart + " WHERE product_id = " + str(element[0]) + ";"
             db_query(query)
         else:
             cart.append({

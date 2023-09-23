@@ -98,7 +98,7 @@ def check_database_table_exists(table_name):
 
                 query = "CREATE TABLE " + table_name + " (product_id SERIAL PRIMARY KEY, quantity INTEGER)"
 
-            elif "all_orders" in table_name:
+            elif "all_orders" == table_name:
                 query = "CREATE TABLE all_orders (id SERIAL PRIMARY KEY, user_id INTEGER, order_date VARCHAR(255))"
             else:
                 # Secure Query
