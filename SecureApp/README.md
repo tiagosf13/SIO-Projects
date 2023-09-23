@@ -1,6 +1,6 @@
 # First SIO Project
 
-Welcome to the First SIO Project repository! Visit us [here](http://www.financialtipeco.online:5070)!
+Welcome to the First SIO Project repository! Visit us [here](https://www.financialtipeco.online)!
 
 ## Overview
 
@@ -10,7 +10,7 @@ This repository contains the entire First SIO Project. It is a platform that sel
 
 To access the full project, including all its resources and code, please visit the following link:
 
-[Project ECO Repository](https://github.com/tiagosf13/SIO-Project)
+[SIO Project Repository](https://github.com/tiagosf13/SIO-Project)
 
 ## Features
 
