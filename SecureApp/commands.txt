@@ -43,6 +43,6 @@ To verify the error log:
     sudo tail -n 50 /var/log/apache2/error.log
 
 
-To verify the access log
+To verify the access log:
 
     sudo tail -n 50 /var/log/apache2/access.log

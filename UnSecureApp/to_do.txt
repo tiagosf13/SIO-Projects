@@ -1,3 +1,0 @@
-Injeções SQL resolvidos com SQL Queries nos comentários
-As caixas de texto das reviews (eventualmente todas as outras) são uma fonte de vulnerabilidade. Pode ser resolvido com técnicas
-de prevenção XSS

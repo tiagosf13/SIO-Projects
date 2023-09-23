@@ -2,3 +2,5 @@ SecureApp/credentials/DataBaseCredentials.json
 SecureApp/credentials/EmailCredentials.json
 UnSecureApp/credentials/DataBaseCredentials.json
 UnSecureApp/credentials/EmailCredentials.json
+SecureApp/commands.txt
+UnSecureApp/commands.txt
