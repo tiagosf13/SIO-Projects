@@ -13,19 +13,20 @@ def check_username_exists(username):
     return result[0][0]
 
 
-def is_valid_review(review_text):
-    # Define a regular expression pattern to match valid review characters
-    valid_characters_pattern = re.compile(r'^[a-zA-Z0-9,.!?()\'" ]+$')
+def is_valid_input(review_text):
+    # Define um padrão de expressão regular para corresponder a caracteres válidos
+    valid_characters_pattern = re.compile(r'^[a-zA-Z0-9,.!?()\'" @]+$')
 
-    # Check if the review contains only valid characters
+    # Verifique se a revisão contém apenas caracteres válidos
     if not valid_characters_pattern.match(review_text):
         return False
-
-    # You can add additional checks for specific patterns or keywords to prevent XSS
-    # For example, you can look for "<script>", "onload=", etc., and return False if found.
-
-    # If none of the checks above triggered a return False, the review is valid
+    
+    if re.search(r"<script>", review_text) or re.search(r"onload=", review_text) or re.search(r"<img", review_text):
+        return False
+    
+    # Se nenhuma das verificações acima retornou False, a revisão é válida
     return True
+
 
 
 

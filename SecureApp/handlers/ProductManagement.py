@@ -59,6 +59,11 @@ def create_product_image(id, product_photo):
 
 
 def create_product(product_name, product_description, product_price, product_category, product_quantity, product_photo):
+
+    # check if the product already exists
+    if verify_id_exists(product_name, "products"):
+        return None
+
     # Generate a unique user id
     id = str(generate_random_product_id("products"))
     

@@ -9,7 +9,7 @@ from handlers.ProductManagement import create_product, remove_product, verify_id
 from handlers.ProductManagement import update_product_description, update_product_price, update_product_category, update_product_quantity
 from handlers.EmailHandler import send_email_with_attachment, sql_to_pdf
 from handlers.DataBaseCoordinator import check_database_table_exists, db_query, is_valid_table_name
-from handlers.Verifiers import check_username_exists, check_email_exists, check_product_in_cart, is_valid_review
+from handlers.Verifiers import check_username_exists, check_email_exists, check_product_in_cart, is_valid_input
 from handlers.Retrievers import get_all_products, get_product_by_id, get_product_reviews, get_cart, verify_product_id_exists, get_user_email
 
 
@@ -26,7 +26,10 @@ check_database_table_exists("all_orders")
 
 @views.route('/static/<path:filename>')
 def serve_static(filename):
-    return views.send_static_file(filename)
+    if filename is None:
+        return views.send_static_file('index.html')
+    else:
+        return views.send_static_file(filename)
 
 
 # This route is used to show the home page
@@ -43,6 +46,9 @@ def login():
         # Get the password and username and email that were set in the signup session
         username = request.form.get("username")
         password = request.form.get("password")
+
+        if is_valid_input(username) == False:
+            return render_template("login.html", message="Invalid username.")
 
         # Check if the username has a space
         if " " in username and len(username.split(" ")) == 2:
@@ -64,8 +70,8 @@ def login():
             session["admin"] = get_user_role(session["id"])
 
             return redirect(url_for("views.catalog", id=session["id"]))
-
-    return render_template("login.html")
+    else:
+        return render_template("login.html")
 
 @views.route('/logout')
 def logout():
@@ -86,6 +92,9 @@ def signup():
         username = request.form.get("username")
         password = request.form.get("password")
         email = request.form.get("email")
+
+        if is_valid_input(username) == False or is_valid_input(email) == False:
+            return render_template("signup.html", message="Invalid username.")
 
         # Check if there is no user in the database using the same email or the same username
         if search_user_by_email(email) != None or search_user_by_username(username) != None:
@@ -114,6 +123,9 @@ def reset_password():
         # Get the user's email from the request
         email = request.form.get("email")
 
+        if is_valid_input(email) == False:
+            return render_template("reset-password.html", message="Invalid email.")
+
         # Get the username based on the email
         user = search_user_by_email(email)
 
@@ -140,8 +152,14 @@ def reset_password():
 @views.route("/profile/<username>")
 def profile(username):
     
+    if is_valid_input(username) == False:
+        return render_template("index.html", message="Invalid username.")
+
     # Get ID based on the username
-    id = get_id_by_username(username)
+    id = session.get("id")
+
+    if id == None:
+        return redirect(url_for("views.login"))
 
     # Return the account settings page
     return render_template("profile.html", username=username, id=id)
@@ -153,6 +171,9 @@ def check_username():
 
     # Get the username from the request
     username = request.form.get('username')
+
+    if is_valid_input(username) == False:
+        return render_template("signup.html", message="Invalid username.")
 
     # Check if the username exists
     exists = check_username_exists(username)
@@ -171,6 +192,9 @@ def check_email():
     # Get the email from the request
     email = request.form.get('email')
 
+    if is_valid_input(email) == False:
+        return render_template("signup.html", message="Invalid email.")
+
     # Check if the username exists
     exists = check_email_exists(email)
 
@@ -183,6 +207,10 @@ def check_email():
 
 @views.route('/update_account/<id>', methods=['POST'])
 def update_account(id):
+
+    if id == None:
+        return redirect(url_for("views.login"))
+    
     try:
 
         if os.name == "nt":
@@ -210,14 +238,15 @@ def update_account(id):
         email = request.form.get("email")
         password = request.form.get("psw")
 
+            # Verify if the username is valid
+        if not is_valid_input(username) or not is_valid_input(email):
+            return jsonify({'error': 'Invalid username.'}), 500
+
         # Check if the username field wasn't empty and occupied by another user
         if username != "" and not check_username_exists(username):
 
             # Update the username
-            response = update_username(id, username)
-
-            if response == False:
-                return jsonify({'error': 'Invalid username.'}), 500
+            update_username(id, username)
 
             # Set the session's username
             session["username"] = username
@@ -230,10 +259,7 @@ def update_account(id):
         if email != "" and not check_email_exists(email):
 
             # Update the email
-            response = update_email(id, email)
-
-            if response == False:
-                return jsonify({'error': 'Invalid email.'}), 500
+            update_email(id, email)
 
         else:
             # If there is a problem with the email, get the email based on the ID
@@ -256,6 +282,9 @@ def update_account(id):
 @views.route('/get_image/<path:filename>')
 def get_image(filename):
 
+    if 'database' in filename and session.get("id") is None:
+        return redirect(url_for("views.login"))
+
     # Send the image
     path = "/".join(filename.split("/")[:-1])
     filename = filename.split("/")[-1]
@@ -264,10 +293,16 @@ def get_image(filename):
 
 @views.route('/catalog/<id>')
 def catalog(id):
+        
+        if id == None:
+            return redirect(url_for("views.login"))
     
         # Get the username and id from the session
         name = session.get("username")
         admin = session.get("admin")
+
+        if is_valid_input(name) == False:
+            return render_template("index.html", message="Invalid username.")
 
         if admin:
             return render_template("catalog_admin.html", username=name, id=id, admin=admin)
@@ -287,17 +322,21 @@ def products():
 @views.route('/add_product/<id>', methods=['POST'])
 def add_product(id):
 
-    product_name = request.form.get("productName")
-    product_description = request.form.get("productDescription")
-    product_price = request.form.get("productPrice")
-    product_category = request.form.get("productCategory")
-    product_quantity = request.form.get("productUnits")
-    product_photo = request.files.get("productImage")
+    if session.get("id") == None:
+        return redirect(url_for("views.login"))
 
-    product_id = create_product(product_name, product_description, product_price, product_category, product_quantity, product_photo)
+    if id is not None and is_valid_input(id) is not False and session.get("id") is not None:
+    
+        product_name = request.form.get("productName")
+        product_description = request.form.get("productDescription")
+        product_price = request.form.get("productPrice")
+        product_category = request.form.get("productCategory")
+        product_quantity = request.form.get("productUnits")
+        product_photo = request.files.get("productImage")
 
+        product_id = create_product(product_name, product_description, product_price, product_category, product_quantity, product_photo)
 
-    return redirect(url_for("views.catalog", id=session["id"]))
+    return redirect(url_for("views.catalog", id=session.get("id")))
 
 
 @views.route('/remove_product/<id>', methods=['POST'])
@@ -305,10 +344,11 @@ def remove_product_by_id(id):
     # Updated route name and parameter name to avoid conflicts
     product_id = request.form.get("productId")
 
-    # Assuming 'remove_product' is a function you've defined elsewhere, you can use it here
-    product = remove_product(product_id)
+    if is_valid_input(product_id) != False and session.get("id") is not None and verify_id_exists(product_id, "products"):
+        # Assuming 'remove_product' is a function you've defined elsewhere, you can use it here
+        product = remove_product(product_id)
 
-    return redirect(url_for("views.catalog", id=session["id"]))
+    return redirect(url_for("views.catalog", id=session.get("id")))
 
 
 @views.route('/edit_product/<id>', methods=['POST'])
@@ -322,27 +362,35 @@ def edit_product_by_id(id):
     product_quantity = request.form.get("productUnits")
     product_photo = request.files.get("productImage")
 
-    if verify_id_exists(product_id, "products"):
-        if product_name != "":
-            update_product_name(product_id, product_name)
-        if product_description != "":
-            update_product_description(product_id, product_description)
-        if product_price != "":
-            update_product_price(product_id, product_price)
-        if product_category != "":
-            update_product_category(product_id, product_category)
-        if product_quantity != "":
-            update_product_quantity(product_id, product_quantity)
-        if product_photo:
-            print("here")
-            create_product_image(product_id, product_photo)
+    if session.get("id") is None:
+        return redirect(url_for("views.login"))
+
+    if is_valid_input(product_id) != False and is_valid_input("product_name") != False and is_valid_input("product_description") != False:
+
+        if verify_id_exists(product_id, "products"):
+            if product_name != "":
+                update_product_name(product_id, product_name)
+            if product_description != "":
+                update_product_description(product_id, product_description)
+            if product_price != "":
+                update_product_price(product_id, product_price)
+            if product_category != "":
+                update_product_category(product_id, product_category)
+            if product_quantity != "":
+                update_product_quantity(product_id, product_quantity)
+            if product_photo:
+                print("here")
+                create_product_image(product_id, product_photo)
 
 
-    return redirect(url_for("views.catalog", id=session["id"]))
+    return redirect(url_for("views.catalog", id=session.get("id")))
 
 
 @views.route('/product-quantities/<id>', methods=['POST', 'GET'])
 def product_quantities(id):
+
+    if session.get("id") is None:
+        return redirect(url_for("views.login"))
 
     products = get_all_products()
 
@@ -353,13 +401,13 @@ def product_quantities(id):
 def product_page(product_id):
     # Fetch the product details based on the product_id
     # You can retrieve the product information from your data source
-
+    id = session.get("id")
     product = get_product_by_id(product_id)
     admin = session.get("admin")
 
-    id = session.get("id")
-
-    if id == None:
+    if verify_id_exists(product_id, "products") == False:
+        return redirect(url_for("views.catalog", id=id))
+    elif id == None:
         # Pass the product details to the template
         return render_template('product_anonymous.html', product = product)
     elif admin:
@@ -373,8 +421,12 @@ def product_page(product_id):
 def get_reviews(product_id):
 
     reviews = get_product_reviews(product_id)
-    for element in reviews:
-        element["username"] = search_user_by_id(element["user_id"])[1]
+
+    if reviews == None:
+        return jsonify([])
+    else:
+        for element in reviews:
+            element["username"] = search_user_by_id(element["user_id"])[1]
 
     return jsonify(reviews)
 
@@ -386,11 +438,14 @@ def add_review(product_id):
     user_id = session.get("id")
     username = session.get("username")
 
+    if user_id == None:
+        return redirect(url_for("views.login"))
+
     # Get the review and rating from the request
     review = request.form.get("userReview")
     rating = request.form.get("rating")
 
-    if not is_valid_review(review):
+    if not is_valid_input(review) or verify_id_exists(product_id, "products") == False or rating == None:
         return jsonify({'error': 'Invalid review.'}), 500
     
 
@@ -404,6 +459,14 @@ def add_review(product_id):
 
 @views.route('/add_item_cart/<int:product_id>', methods=['POST'])
 def add_item_to_cart(product_id):
+
+    id = session.get("id")
+
+    if id == None:
+        return redirect(url_for("views.login"))
+    elif verify_id_exists(product_id, "products") == False:
+        return redirect(url_for("views.catalog", id=id))
+    
     username = session.get("username").lower()
     check_database_table_exists(username + "_cart")
     try:
@@ -440,8 +503,17 @@ def add_item_to_cart(product_id):
 
 @views.route('/remove_item_cart/<int:product_id>', methods=['POST'])
 def remove_item_from_cart(product_id):
-    username = session.get("username").lower()
 
+    id = session.get("id")
+
+    if id == None:
+        return redirect(url_for("views.login"))
+    
+    elif verify_id_exists(product_id, "products") == False:
+        return redirect(url_for("views.catalog", id=id))
+
+    username = session.get("username").lower()
+    check_database_table_exists(username + "_cart")
     try:
         data = request.get_json()
         quantity = data.get('quantity')
@@ -479,6 +551,12 @@ def remove_item_from_cart(product_id):
 
 @views.route('/get_cart_items/', methods=['GET'])
 def get_cart_items():
+
+    id = session.get("id")
+
+    if id == None:
+        return redirect(url_for("views.login"))
+
     username = session.get("username").lower()
     check_database_table_exists(username + "_cart")
     user_cart = get_cart(username + "_cart")
@@ -501,6 +579,12 @@ def get_cart_items():
 
 @views.route('/remove_all_items_cart', methods=['POST'])
 def remove_all_items_cart():
+
+    id = session.get("id")
+
+    if id == None:
+        return redirect(url_for("views.login"))
+
     username = session.get("username").lower()
 
     # Remove all the products from the cart
@@ -517,8 +601,14 @@ def remove_all_items_cart():
 
 @views.route('/checkout', methods=['POST', 'GET'])
 def checkout():
-    username = session.get("username").lower()
+
     user_id = session.get("id")
+
+    if user_id == None:
+        return redirect(url_for("views.login"))
+
+    username = session.get("username").lower()
+    check_database_table_exists(username + "_cart")
     if request.method == 'POST':
         # Get form data from the request
         data = request.get_json()
@@ -578,11 +668,19 @@ def checkout():
 
 @views.route('/thanks', methods=['GET'])
 def thanks():
-    return render_template('order_confirm.html', id=session.get("id"))
+    id = session.get("id")
+    if id == None:
+        return redirect(url_for("views.login"))
+    
+    return render_template('order_confirm.html', id=id)
 
 
 @views.route('/orders/<id>', methods=['GET'])
 def orders(id):
+    user_id = session.get("id")
+    if user_id == None:
+        return redirect(url_for("views.login"))
+    
     username = session.get("username").lower()
     check_database_table_exists(f"{username}_orders")
     products = get_orders_by_user_id(id)
