@@ -16,14 +16,19 @@ from handlers.Retrievers import get_all_products, get_product_by_id, get_product
 
 # Starting Blueprint
 views = Blueprint('views', __name__)
+
+
+# Check if the database tables exist
 check_database_table_exists("users")
 check_database_table_exists("products")
 check_database_table_exists("reviews")
 check_database_table_exists("all_orders")
 
-# Routes
 
-
+"""
+This route is used to serve the static files,
+such as images, css, js, etc.
+"""
 @views.route('/static/<path:filename>')
 def serve_static(filename):
     if filename is None:
@@ -32,7 +37,7 @@ def serve_static(filename):
         return views.send_static_file(filename)
 
 
-# This route is used to show the home page
+# This route is used to serve the index page
 @views.route('/', methods=['GET'])
 def index():
     return render_template('index.html')
@@ -68,6 +73,8 @@ def login():
             session["username"] = username
             session["id"] = get_id_by_username(username)
             session["admin"] = get_user_role(session["id"])
+            check_database_table_exists(username.lower() + "_cart")
+            check_database_table_exists(f"{username.lower()}_orders")
 
             return redirect(url_for("views.catalog", id=session["id"]))
     else:
@@ -334,7 +341,7 @@ def add_product(id):
         product_quantity = request.form.get("productUnits")
         product_photo = request.files.get("productImage")
 
-        product_id = create_product(product_name, product_description, product_price, product_category, product_quantity, product_photo)
+        create_product(product_name, product_description, product_price, product_category, product_quantity, product_photo)
 
     return redirect(url_for("views.catalog", id=session.get("id")))
 
@@ -346,7 +353,7 @@ def remove_product_by_id(id):
 
     if is_valid_input(product_id) != False and session.get("id") is not None and verify_id_exists(product_id, "products"):
         # Assuming 'remove_product' is a function you've defined elsewhere, you can use it here
-        product = remove_product(product_id)
+        remove_product(product_id)
 
     return redirect(url_for("views.catalog", id=session.get("id")))
 
@@ -365,22 +372,20 @@ def edit_product_by_id(id):
     if session.get("id") is None:
         return redirect(url_for("views.login"))
 
-    if is_valid_input(product_id) != False and is_valid_input("product_name") != False and is_valid_input("product_description") != False:
-
-        if verify_id_exists(product_id, "products"):
-            if product_name != "":
-                update_product_name(product_id, product_name)
-            if product_description != "":
-                update_product_description(product_id, product_description)
-            if product_price != "":
-                update_product_price(product_id, product_price)
-            if product_category != "":
-                update_product_category(product_id, product_category)
-            if product_quantity != "":
-                update_product_quantity(product_id, product_quantity)
-            if product_photo:
-                print("here")
-                create_product_image(product_id, product_photo)
+    if is_valid_input(product_id) and verify_id_exists(product_id, "products"):
+        if product_name != "" and is_valid_input(product_name):
+            update_product_name(product_id, product_name)
+        if product_description != "" and is_valid_input(product_description):
+            update_product_description(product_id, product_description)
+        if product_price != "":
+            update_product_price(product_id, product_price)
+        if product_category != "":
+            update_product_category(product_id, product_category)
+        if product_quantity != "":
+            update_product_quantity(product_id, product_quantity)
+        if product_photo:
+            print("here")
+            create_product_image(product_id, product_photo)
 
 
     return redirect(url_for("views.catalog", id=session.get("id")))
@@ -460,41 +465,36 @@ def add_review(product_id):
 @views.route('/add_item_cart/<int:product_id>', methods=['POST'])
 def add_item_to_cart(product_id):
 
-    id = session.get("id")
-
-    if id == None:
+    if session.get("id") == None:
         return redirect(url_for("views.login"))
     elif verify_id_exists(product_id, "products") == False:
         return redirect(url_for("views.catalog", id=id))
     
     username = session.get("username").lower()
-    check_database_table_exists(username + "_cart")
     try:
         data = request.get_json()
         quantity = data.get('quantity')
 
         if quantity <= 0:
             return jsonify({'error': 'Invalid quantity.'}), 500
+        
+        if not is_valid_table_name(username + "_cart"):
+            return jsonify({'error': 'Invalid table name.'}), 400
+        
+        # Secure Query
+        query = "SELECT * FROM {} WHERE product_id = %s".format(username + "_cart")
+        result = db_query(query, (product_id,))
 
-        user_cart = get_cart(username + "_cart")
-
-        for product in user_cart:
-            if product["product_id"] == product_id:
-                product_stock = get_product_by_id(product_id)["stock"]
-                if product["quantity"] + quantity > product_stock:
-                    return jsonify({'error': 'Not enough stock.'}), 500
-                else:
-                    # You can add code here to update the user's cart in the database
-                    set_cart_item(username + "_cart", product_id, quantity, "add")
-                    return jsonify({'message': 'Product added to the cart.'}), 200
-                
         product_stock = get_product_by_id(product_id)["stock"]
-        if quantity > product_stock or quantity < 0:
+
+        if result != [] and result[0][1] + quantity > product_stock:
+            return jsonify({'error': 'Not enough stock.'}), 500
+        elif result == [] and (quantity > product_stock):
             return jsonify({'error': 'Not enough stock.'}), 500
         else:
-            # You can add code here to update the user's cart in the database
             set_cart_item(username + "_cart", product_id, quantity, "add")
             return jsonify({'message': 'Product added to the cart.'}), 200
+        
     except Exception as e:
         print(e)
         return jsonify({'error': str(e)}), 500
@@ -513,37 +513,35 @@ def remove_item_from_cart(product_id):
         return redirect(url_for("views.catalog", id=id))
 
     username = session.get("username").lower()
-    check_database_table_exists(username + "_cart")
     try:
         data = request.get_json()
         quantity = data.get('quantity')
 
         # Secure Query: Validate the table name
         cart_table_name = f"{username}_cart"
+
         if not is_valid_table_name(cart_table_name):
             return jsonify({'error': 'Invalid table name.'}), 400
 
         if check_product_in_cart(cart_table_name, product_id) == False or quantity <= 0:
             return jsonify({'error': 'Product not in cart.'}), 500
         else:
-            user_cart = get_cart(cart_table_name)
+            # Secure Query
+            query = "SELECT * FROM {} WHERE product_id = %s".format(cart_table_name)
+            result = db_query(query, (product_id,))
 
-            for product in user_cart:
-                if product["quantity"] == 0:
-                    # Remove the product from the cart
-                    # Secure Query
-                    delete_query = f"DELETE FROM {cart_table_name} WHERE product_id = %s;"
-                    db_query(delete_query, (product["product_id"],))
-
-                elif product["product_id"] == product_id:
-                    if product["quantity"] - quantity < 0:
-                        return jsonify({'error': 'Not enough stock.'}), 500
-                    else:
-                        # Secure Query: Update the user's cart in the database
-                        set_cart_item(cart_table_name, product_id, quantity, "remove")
-                        return jsonify({'message': 'Product removed from the cart.'}), 200
-
-            return jsonify({'message': 'Product not in the cart.'}), 500
+            if result != [] and result[0][1] == quantity:
+                # Remove the product from the cart
+                # Secure Query
+                query = "DELETE FROM {} WHERE product_id = %s".format(cart_table_name)
+                db_query(query, (product_id,))
+                return jsonify({'message': 'Product removed from the cart.'}), 200
+            elif result != [] and result[0][1] - quantity >= 0:
+                # Secure Query: Update the user's cart in the database
+                set_cart_item(cart_table_name, product_id, quantity, "remove")
+                return jsonify({'message': 'Product removed from the cart.'}), 200
+            else:
+                return jsonify({'message': 'Product not in the cart.'}), 500
     except Exception as e:
         print(e)
         return jsonify({'error': str(e)}), 500
@@ -552,37 +550,19 @@ def remove_item_from_cart(product_id):
 @views.route('/get_cart_items/', methods=['GET'])
 def get_cart_items():
 
-    id = session.get("id")
-
-    if id == None:
+    if session.get("id") == None:
         return redirect(url_for("views.login"))
-
-    username = session.get("username").lower()
-    check_database_table_exists(username + "_cart")
-    user_cart = get_cart(username + "_cart")
     
-    # Create a new list for valid products
-    valid_user_cart = []
+    user_cart = get_cart(session.get("username").lower() + "_cart")
 
-    for product in user_cart:
-        if verify_product_id_exists(product["product_id"]) and product["quantity"] > 0 and product["quantity"] <= get_product_by_id(product["product_id"])["stock"]:
-            valid_user_cart.append(product)
-        else:
-            # Remove the invalid product from the cart
-            # Secure Query
-            query = "DELETE FROM {} WHERE product_id = %s;".format(username + "_cart")
-            db_query(query, (product["product_id"],))
-
-    return jsonify(valid_user_cart)
+    return jsonify(user_cart)
 
 
 
 @views.route('/remove_all_items_cart', methods=['POST'])
 def remove_all_items_cart():
 
-    id = session.get("id")
-
-    if id == None:
+    if session.get("id") == None:
         return redirect(url_for("views.login"))
 
     username = session.get("username").lower()
@@ -593,7 +573,9 @@ def remove_all_items_cart():
     if not is_valid_table_name(table_name):
         return jsonify({'error': 'Invalid table name.'}), 400
 
-    query = "DELETE FROM {};".format(table_name)
+    # Remove all the products from the cart
+    # Secure Query
+    query = "DELETE FROM {}".format(table_name)
     db_query(query)
 
     return jsonify({'message': 'Cart cleared.'}), 200
@@ -608,7 +590,6 @@ def checkout():
         return redirect(url_for("views.login"))
 
     username = session.get("username").lower()
-    check_database_table_exists(username + "_cart")
     if request.method == 'POST':
         # Get form data from the request
         data = request.get_json()
@@ -651,16 +632,18 @@ def checkout():
             if not is_valid_table_name(cart_table_name):
                 return jsonify({'error': 'Invalid table name.'}), 400
 
-            query = f"DELETE FROM {cart_table_name};"
-            db_query(query)
+            query = "DELETE FROM {}".format(cart_table_name)
+            db_query(query, ())
+
 
             # Redirect to a thank you page or any other appropriate page
             return jsonify({'message': 'Order placed successfully.'}), 200
         else:
             return jsonify({'error': 'Something went wrong.'}), 500
     else:
-        # Handle GET request (display the checkout page)
+        # Handle GET request (display the checkout page), use .json to convert the response to JSON (otherwise we get the 200 OK response)
         products = get_cart_items().json
+
         if not products:
             return redirect(url_for('views.catalog', id=user_id))
         return render_template('checkout.html', products=products, user_id=user_id)
@@ -681,8 +664,6 @@ def orders(id):
     if user_id == None:
         return redirect(url_for("views.login"))
     
-    username = session.get("username").lower()
-    check_database_table_exists(f"{username}_orders")
     products = get_orders_by_user_id(id)
 
     if products == None:

@@ -1,7 +1,5 @@
 from flask import Flask
 from views import views
-from handlers.DataBaseCoordinator import check_database_table_exists
-from flask_cors import CORS
 
 
 # Declare the app
@@ -12,8 +10,6 @@ app.config['SECRET_KEY'] = 'LECI'
 
 
 if __name__ == '__main__':
-    # Set up CORS for security
-    CORS(app)
     app.run(debug=True, host='127.0.0.1', port=5000)
 
 """

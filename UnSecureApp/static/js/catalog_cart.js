@@ -10,13 +10,13 @@ function updateCartDisplay() {
     const cartList = document.getElementById('cartList');
 
     // Clear existing cart items
-    cartList.innerHTML = '';
 
     // Fetch the user's cart items from the server
     fetch(`/get_cart_items/`) // Replace 'username' with the actual username
         .then(response => response.json())
         .then(data => {
             let total = 0;
+            cartList.innerHTML = '';
             // Iterate through the retrieved cart items and add them to the cart list
             data.forEach((cartItem) => {
                 

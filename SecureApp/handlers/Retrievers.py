@@ -113,8 +113,7 @@ def get_cart(username_cart):
     cart = []
 
     for element in result:
-        if not verify_product_id_exists(element[0]):
-
+        if not ((verify_product_id_exists(element[0]) and element[1] > 0 and element[1] <= get_product_by_id(element[0])["stock"])):
             # Secure Query
             if is_valid_table_name(username_cart):
                 delete_query = "DELETE FROM {} WHERE product_id = %s;".format(username_cart)

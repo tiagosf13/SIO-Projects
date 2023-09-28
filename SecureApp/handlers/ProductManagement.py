@@ -1,7 +1,7 @@
 import random, os, json
 from datetime import datetime
 from handlers.Retrievers import get_product_by_id
-from handlers.DataBaseCoordinator import db_query, check_database_table_exists
+from handlers.DataBaseCoordinator import db_query
 from handlers.Verifiers import is_valid_table_name
 
 
@@ -182,7 +182,6 @@ def set_cart_item(table_name, product_id, quantity, operation):
 
 def register_order(username, user_id, order_details, products):
     try:
-        check_database_table_exists(f"{username}_orders")
         products_to_register = {}
         total_price = 0
         for product in products:

@@ -1,7 +1,7 @@
 import random, os, json
 from datetime import datetime
 from handlers.Retrievers import get_product_by_id
-from handlers.DataBaseCoordinator import db_query, check_database_table_exists
+from handlers.DataBaseCoordinator import db_query
 
 
 def verify_id_exists(id, table):
@@ -186,8 +186,7 @@ def set_cart_item(table_name, product_id, quantity, operation):
 
 def register_order(username, user_id, order_details, products):
 
-    #try:
-        check_database_table_exists(f"{username}_orders")
+    try:
         products_to_register = {}
         total_price = 0
         for product in products:
@@ -210,7 +209,7 @@ def register_order(username, user_id, order_details, products):
         query = "INSERT INTO "+username+"_orders (id, products, total_price, shipping_address, order_date) VALUES ("+order_id+",'"+str(json.dumps(products_to_register))+"',"+str(total_price)+",'"+order_details["shipping_address"]+"','"+str(time)+"');"
         db_query(query)
         return True, order_id
-    #except:
+    except:
         return False, None
     
 
