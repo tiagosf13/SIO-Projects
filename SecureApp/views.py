@@ -77,8 +77,8 @@ def login():
             check_database_table_exists(f"{username.lower()}_orders")
 
             return redirect(url_for("views.catalog", id=session["id"]))
-    else:
-        return render_template("login.html")
+
+    return render_template("login.html")
 
 @views.route('/logout')
 def logout():
@@ -215,7 +215,7 @@ def check_email():
 @views.route('/update_account/<id>', methods=['POST'])
 def update_account(id):
 
-    if id == None:
+    if id == None or session.get("id") == None:
         return redirect(url_for("views.login"))
     
     try:
@@ -245,12 +245,8 @@ def update_account(id):
         email = request.form.get("email")
         password = request.form.get("psw")
 
-            # Verify if the username is valid
-        if not is_valid_input(username) or not is_valid_input(email):
-            return jsonify({'error': 'Invalid username.'}), 500
-
         # Check if the username field wasn't empty and occupied by another user
-        if username != "" and not check_username_exists(username):
+        if username != "" and not check_username_exists(username) and is_valid_input(username):
 
             # Update the username
             update_username(id, username)
@@ -263,7 +259,7 @@ def update_account(id):
             username = search_user_by_id(id)[1]
 
         # Check if the email field wasn't empty and occupied by another user
-        if email != "" and not check_email_exists(email):
+        if email != "" and not check_email_exists(email) and is_valid_input(email):
 
             # Update the email
             update_email(id, email)
@@ -301,7 +297,7 @@ def get_image(filename):
 @views.route('/catalog/<id>')
 def catalog(id):
         
-        if id == None:
+        if id == None or session.get("id") == None:
             return redirect(url_for("views.login"))
     
         # Get the username and id from the session
@@ -384,7 +380,6 @@ def edit_product_by_id(id):
         if product_quantity != "":
             update_product_quantity(product_id, product_quantity)
         if product_photo:
-            print("here")
             create_product_image(product_id, product_photo)
 
 
