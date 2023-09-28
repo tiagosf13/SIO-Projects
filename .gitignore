@@ -4,3 +4,7 @@ UnSecureApp/credentials/DataBaseCredentials.json
 UnSecureApp/credentials/EmailCredentials.json
 SecureApp/commands.txt
 UnSecureApp/commands.txt
+SecureApp/__pycache__
+UnSecureApp/__pycache__
+SecureApp/handlers/__pycache__
+UnSecureApp/handlers/__pycache__
