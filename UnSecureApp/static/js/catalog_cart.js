@@ -120,10 +120,6 @@ document.getElementById('removeAllItems').addEventListener('click', function(eve
     shoppingCart.removeAllProducts();
 });
 
-// Append the buttons and input to the product card
-productCard.appendChild(addToCartButton);
-productCard.appendChild(removeItemButton);
-
 // Add a click event listener to the product container
 productContainer.addEventListener('click', (event) => {
     // Check if the clicked element is an "Add to Cart" button

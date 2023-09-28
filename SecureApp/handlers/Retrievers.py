@@ -27,23 +27,20 @@ def get_orders(username_orders):
 
 
 def get_all_products():
-
-    # Secure Query
-    query = "SELECT * FROM products"
+    # Secure Query - Select specific columns
+    query = "SELECT id, name, description, price, category, stock FROM products"
     results = db_query(query)
-
-    products = []
-    for row in results:
-        product = {
-            "id": row[0],
-            "name": row[1],
-            "description": row[2],
-            "price": row[3],
-            "category": row[4],
-            "stock": row[5]
-        }
-        products.append(product)
-
+    
+    # Fetch all rows in one go and convert to a list of dictionaries
+    products = [{
+        "id": row[0],
+        "name": row[1],
+        "description": row[2],
+        "price": row[3],
+        "category": row[4],
+        "stock": row[5]
+    } for row in results]
+    
     return products
 
 def verify_product_id_exists(id):
