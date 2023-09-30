@@ -5,6 +5,21 @@ from handlers.DataBaseCoordinator import db_query
 from handlers.Verifiers import is_valid_table_name
 
 
+def verify_product_exists(id, table):
+    # Secure Query: Validate the table name
+    if not is_valid_table_name(table):
+        return False  # Return an error or handle it appropriately
+
+    # Secure Query: Check if the ID exists in the specified table
+    query = "SELECT * FROM {} WHERE name = %s;".format(table)
+    results = db_query(query, (id,))
+
+    if len(results) == 0:
+        return False
+    else:
+        return True
+
+
 def verify_id_exists(id, table):
     # Secure Query: Validate the table name
     if not is_valid_table_name(table):
@@ -61,7 +76,7 @@ def create_product_image(id, product_photo):
 def create_product(product_name, product_description, product_price, product_category, product_quantity, product_photo):
 
     # check if the product already exists
-    if verify_id_exists(product_name, "products"):
+    if verify_product_exists(product_name, "products"):
         return None
 
     # Generate a unique user id

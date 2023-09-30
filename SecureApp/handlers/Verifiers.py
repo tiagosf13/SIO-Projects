@@ -14,21 +14,22 @@ def check_username_exists(username):
 
 
 def is_valid_input(review_text):
-    # Define um padrão de expressão regular para corresponder a caracteres válidos
+    # Define a regular expression pattern to match valid characters
     valid_characters_pattern = re.compile(r'^[a-zA-Z0-9,.!?()\'" @]+$')
 
-    # Verifique se a revisão contém apenas caracteres válidos
+    # Check if the review contains only characters not in the valid pattern
     if not valid_characters_pattern.match(review_text):
         return False
-    
+
     if re.search(r"<script>", review_text) or re.search(r"onload=", review_text) or re.search(r"<img", review_text):
         return False
+
+    # Check if the review contains a single quote
+    if "'" in review_text:
+        return False
     
-    # Se nenhuma das verificações acima retornou False, a revisão é válida
+    # If none of the checks above returned False, the review is valid
     return True
-
-
-
 
 
 def check_email_exists(email):

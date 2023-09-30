@@ -337,6 +337,9 @@ def add_product(id):
         product_quantity = request.form.get("productUnits")
         product_photo = request.files.get("productImage")
 
+        if is_valid_input(product_name) == False or is_valid_input(product_description) == False or is_valid_input(product_price) == False or is_valid_input(product_category) == False or is_valid_input(product_quantity) == False:
+            return redirect(url_for("views.catalog", id=session.get("id")))
+
         create_product(product_name, product_description, product_price, product_category, product_quantity, product_photo)
 
     return redirect(url_for("views.catalog", id=session.get("id")))
@@ -373,11 +376,11 @@ def edit_product_by_id(id):
             update_product_name(product_id, product_name)
         if product_description != "" and is_valid_input(product_description):
             update_product_description(product_id, product_description)
-        if product_price != "":
+        if product_price != "" and is_valid_input(product_price):
             update_product_price(product_id, product_price)
-        if product_category != "":
+        if product_category != "" and is_valid_input(product_category):
             update_product_category(product_id, product_category)
-        if product_quantity != "":
+        if product_quantity != "" and is_valid_input(product_quantity):
             update_product_quantity(product_id, product_quantity)
         if product_photo:
             create_product_image(product_id, product_photo)

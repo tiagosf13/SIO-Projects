@@ -40,7 +40,6 @@ def create_product_image(id, product_photo):
 
     if os.path.exists(os.path.join(user_directory, f"{id}.png")):
         os.remove(os.path.join(user_directory, f"{id}.png"))
-
     # Save the product photo
     product_photo.save(os.path.join(user_directory, f"{id}.png"))
 

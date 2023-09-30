@@ -25,3 +25,7 @@ In the Checkout, if the shipping address is ' the web app will malfunction (SQL 
 # Acessing Pages Without Auth (V7)
 
 The authentication can be skipped by putting the right URL, so any page can be easily accessed, including the user's profile page and all the account
+
+# Product Details (V8)
+
+When adding or editing a product, the inputs are vulnerable to XSS or SQL Injections
