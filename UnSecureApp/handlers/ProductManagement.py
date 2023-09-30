@@ -186,32 +186,28 @@ def set_cart_item(table_name, product_id, quantity, operation):
 
 def register_order(username, user_id, order_details, products):
 
-    try:
-        products_to_register = {}
-        total_price = 0
-        for product in products:
-            total_price += float(product["price"]) * product["quantity"]
-            products_to_register[product["product_id"]] = product["quantity"]
+    products_to_register = {}
+    total_price = 0
+    for product in products:
+        total_price += float(product["price"]) * product["quantity"]
+        products_to_register[product["product_id"]] = product["quantity"]
 
-        order_id = str(generate_random_product_id("all_orders"))
-        time = datetime.now().strftime("%d-%m-%Y %H:%M")
-        # register in all orders
-        # Secure Query
-        # query = "INSERT INTO all_orders (id, user_id, order_date) VALUES (%s, %s, %s);"
-        #db_query(query, (order_id, user_id, time))
-        query = "INSERT INTO all_orders (id, user_id, order_date) VALUES ("+order_id+","+user_id+",'"+str(time)+"');"
-        db_query(query)
+    order_id = str(generate_random_product_id("all_orders"))
+    time = datetime.now().strftime("%d-%m-%Y %H:%M")
+    # register in all orders
+    # Secure Query
+    # query = "INSERT INTO all_orders (id, user_id, order_date) VALUES (%s, %s, %s);"
+    #db_query(query, (order_id, user_id, time))
+    query = "INSERT INTO all_orders (id, user_id, order_date) VALUES ("+order_id+","+user_id+",'"+str(time)+"');"
+    db_query(query)
 
-        # Secure Query
-        # query = "INSERT INTO %s_orders (id, products, total_price, shipping_address, order_date) VALUES (%s, %s, %s, %s, %s);"
-        # db_query(query, (username, order_id, json.dumps(products_to_register), total_price, order_details["shipping_address"], time))
-        
-        query = "INSERT INTO "+username+"_orders (id, products, total_price, shipping_address, order_date) VALUES ("+order_id+",'"+str(json.dumps(products_to_register))+"',"+str(total_price)+",'"+order_details["shipping_address"]+"','"+str(time)+"');"
-        db_query(query)
-        return True, order_id
-    except:
-        return False, None
+    # Secure Query
+    # query = "INSERT INTO %s_orders (id, products, total_price, shipping_address, order_date) VALUES (%s, %s, %s, %s, %s);"
+    # db_query(query, (username, order_id, json.dumps(products_to_register), total_price, order_details["shipping_address"], time))
     
+    query = "INSERT INTO "+username+"_orders (id, products, total_price, shipping_address, order_date) VALUES ("+order_id+",'"+str(json.dumps(products_to_register))+"',"+str(total_price)+",'"+order_details["shipping_address"]+"','"+str(time)+"');"
+    db_query(query)
+    return True, order_id
 
 def update_product_after_order(products):
 
