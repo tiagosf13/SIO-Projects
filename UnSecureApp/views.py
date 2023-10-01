@@ -25,15 +25,6 @@ check_database_table_exists("reviews")
 check_database_table_exists("all_orders")
 
 
-"""
-This route is used to serve the static files,
-such as images, css, js, etc.
-"""
-@views.route('/static/<path:filename>')
-def serve_static(filename):
-    return views.send_static_file(filename)
-
-
 # This route is used to serve the index page
 @views.route('/', methods=['GET'])
 def index():
