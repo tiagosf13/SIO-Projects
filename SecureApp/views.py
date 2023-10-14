@@ -31,7 +31,6 @@ check_database_table_exists("all_orders")
 def index():
     return render_template('index.html')
 
-
 # This route is used to perform the login
 @views.route('/login', methods=['GET','POST'])
 def login():
