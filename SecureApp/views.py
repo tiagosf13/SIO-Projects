@@ -1,8 +1,8 @@
 import os, tempfile
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for, send_from_directory
-from handlers.UserManagement import update_username, search_user_by_id, update_email
-from handlers.UserManagement import get_user_role, compose_email_body, update_password
-from handlers.UserManagement import search_user_by_email, validate_login, get_id_by_username
+from handlers.UserManagement import update_username, search_user_by_id, update_email, is_valid_reset_token, get_user_by_reset_token, clear_reset_token
+from handlers.UserManagement import get_user_role, compose_email_body, update_password, generate_reset_token, set_reset_token_for_user
+from handlers.UserManagement import search_user_by_email, validate_login, get_id_by_username, send_password_reset_email
 from handlers.UserManagement import search_user_by_username, send_recovery_password, create_user, get_orders_by_user_id
 from handlers.ProductManagement import create_review, set_cart_item, update_product_after_order, register_order
 from handlers.ProductManagement import create_product, remove_product, verify_id_exists, update_product_name, create_product_image
@@ -11,6 +11,7 @@ from handlers.EmailHandler import send_email_with_attachment, sql_to_pdf
 from handlers.DataBaseCoordinator import check_database_table_exists, db_query, is_valid_table_name
 from handlers.Verifiers import check_username_exists, check_email_exists, check_product_in_cart, is_valid_input
 from handlers.Retrievers import get_all_products, get_product_by_id, get_product_reviews, get_cart, verify_product_id_exists, get_user_email
+from handlers.extensions import bcrypt
 
 
 
@@ -34,39 +35,29 @@ def index():
 # This route is used to perform the login
 @views.route('/login', methods=['GET','POST'])
 def login():
-    
     if request.method == "POST":
-        # Get the password and username and email that were set in the signup session
-        username = request.form.get("username")
+        username = request.form.get("username").lower()
         password = request.form.get("password")
 
         if is_valid_input(username) == False:
             return render_template("login.html", message="Invalid username.")
 
-        # Check if the username has a space
-        if " " in username and len(username.split(" ")) == 2:
+        user = search_user_by_username(username)
 
-            # Merge the string into one username
-            username = username.replace(" ", "")
-
-        # Check if the username inserted is a email
-        if "@" in username:
-
-            # Search the username based on the email
-            username = search_user_by_email(username)
-
-        # Check if the login credentials are valid
-        if validate_login(username, password) == True:
-            # Set the session variables
+        if user and bcrypt.check_password_hash(user[2], password):
+            # Password is correct
             session["username"] = username
             session["id"] = get_id_by_username(username)
             session["admin"] = get_user_role(session["id"])
             check_database_table_exists(username.lower() + "_cart")
             check_database_table_exists(f"{username.lower()}_orders")
-
             return redirect(url_for("views.catalog", id=session["id"]))
 
+        # Password is incorrect
+        return render_template("login.html", message="Invalid login credentials.")
+
     return render_template("login.html")
+
 
 @views.route('/logout')
 def logout():
@@ -81,67 +72,78 @@ def logout():
 # This view is used to enroll new users into the platform
 @views.route("/signup", methods=["GET", "POST"])
 def signup():
-
     if request.method == "POST":
-        # Get the username, password and email from the request
-        username = request.form.get("username")
+        username = request.form.get("username").lower()
         password = request.form.get("password")
         email = request.form.get("email")
 
         if is_valid_input(username) == False or is_valid_input(email) == False:
             return render_template("signup.html", message="Invalid username.")
 
+
         # Check if there is no user in the database using the same email or the same username
         if search_user_by_email(email) != None or search_user_by_username(username) != None:
-
-            # Return signup page if there is
             return render_template("signup.html", message="User already exists.")
-
         else:
+            # Hash the password before storing it in the database
+            hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
 
-            # Create the user in the database
-            create_user(username, password, email)
+            # Create the user in the database with the hashed password
+            create_user(username, hashed_password, email)
 
-            # Return the 2FA signup page, in order to validate the email
             return redirect(url_for("views.login"))
     else:
         return render_template("signup.html")
     
 
-# This route is used to let the user reset he's password
+# This route is used to let the user reset their password
 @views.route("/reset-password", methods=["GET", "POST"])
 def reset_password():
-
-    # Check if the requested method is POST
     if request.method == "POST":
-
-        # Get the user's email from the request
         email = request.form.get("email")
-
         if is_valid_input(email) == False:
             return render_template("reset-password.html", message="Invalid email.")
 
-        # Get the username based on the email
         user = search_user_by_email(email)
-
-        # Check if the user exists
         if user is None:
-
             # If the user doesn't exist, return the signup page
             return redirect(url_for("views.signup"))
-
         else:
-            
-            # Send recovery password to the user's email
-            send_recovery_password(email)
-
-            # Return the login page
+            # Generate a unique reset token
+            reset_token = generate_reset_token()
+            # Store the reset token in the user's record in the database
+            set_reset_token_for_user(user, reset_token)
+            # Send a password reset email with the token
+            send_password_reset_email(email, reset_token)
             return redirect(url_for("views.login"))
     else:
-
-        # If it isn't, return the same page
         return render_template("reset-password.html")
-    
+
+
+@views.route('/reset_password/<reset_token>', methods=['GET', 'POST'])
+def reset_password_confirm(reset_token):
+    # Check if the reset token is valid and not expired
+    if is_valid_reset_token(reset_token):
+        if request.method == 'POST':
+            new_password = request.form.get('new_password')
+            confirm_password = request.form.get('confirm_password')
+
+            if new_password == confirm_password:
+                # Update the user's password in the database with the new hashed password
+                username = get_user_by_reset_token(reset_token)[1]
+
+                if username:
+                    hashed_password = bcrypt.generate_password_hash(new_password).decode("utf-8")
+                    update_password(username, hashed_password)
+
+                    # Clear the reset token for security
+                    clear_reset_token(username)
+                    return redirect(url_for('views.login'))
+        return render_template('reset_password.html', reset_token=reset_token)
+    else:
+        return redirect(url_for('views.login'))
+
+
 
 # This view returns the account settings page
 @views.route("/profile/<username>")
@@ -259,7 +261,10 @@ def update_account(id):
         # Check if the password wasn't empty
         if password != "":
             # Update the password
-            update_password(id, password)
+            # Hash the password before storing it in the database
+            hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
+            username = search_user_by_id(id)[1]
+            update_password(username, hashed_password)
 
         # Return the profile page
         return redirect(url_for("views.catalog", id=id))

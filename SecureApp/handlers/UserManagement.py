@@ -1,10 +1,90 @@
-import os, random, shutil
+import os, random, shutil, secrets, string
 from flask import render_template_string
 from string import ascii_uppercase, ascii_lowercase
 from handlers.EmailHandler import send_email
 from handlers.DataBaseCoordinator import db_query
 from handlers.ProductManagement import get_product_by_id
 from handlers.Verifiers import is_valid_table_name, is_valid_input
+from datetime import datetime, timedelta  # For working with token expiration
+
+
+def clear_reset_token(user):
+    # Build the query to update the reset_token in the user's table
+    # Secure Query
+    query = "UPDATE users SET reset_token = NULL WHERE username = %s;"
+    db_query(query, (user,))
+    query = "UPDATE users SET reset_token_timestamp = NULL WHERE username = %s;"
+    db_query(query, (user,))
+
+def get_user_by_reset_token(reset_token):
+
+    # Build the query to retrieve the user's data
+    # Secure Query
+    query = "SELECT * FROM users WHERE reset_token = %s"
+    result = db_query(query, (reset_token,))
+
+    return result[0]
+
+# This function checks if the reset token is valid and not expired.
+def is_valid_reset_token(reset_token):
+    user = get_user_by_reset_token(reset_token)
+    
+    if user:
+        # Assuming 'reset_token_timestamp' is a field in your User model to store the token creation timestamp.
+        token_timestamp = user[4]
+
+        # Define the token expiration time (e.g., 1 hour).
+        token_expiration_time = timedelta(hours=1)
+
+        # Check if the token is not expired.
+        if token_timestamp + token_expiration_time >= datetime.now():
+            return True
+    return False
+
+
+# Generate a unique reset token
+def generate_reset_token():
+    return ''.join(secrets.choice(string.ascii_letters + string.digits) for i in range(32))
+
+# Store the reset token in the user's record in the database
+def set_reset_token_for_user(user, reset_token):
+    # Store the reset_token in the user's record in the database
+    # This may involve creating a new column in the user table to store the token.
+
+    # Build the query to update the reset_token in the user's table
+
+    # Secure Query
+    query = "UPDATE users SET reset_token = %s WHERE username = %s"
+    db_query(query, (reset_token, user))
+
+    # Secure Query to set the reset_token_timestamp
+    query = "UPDATE users SET reset_token_timestamp = %s WHERE username = %s"
+    db_query(query, (datetime.now(), user))
+
+
+# Send a password reset email with the token
+def send_password_reset_email(email, reset_token):
+    # Use your email library to send a password reset email with a link containing the reset token.
+    # The link should point to a password reset route in your application where users can reset their passwords.
+    # Make sure the token is securely validated in the reset route.
+
+    # Read the HTML and CSS files
+    if os.name == "nt":
+        # Get the current working directory
+        current_directory = os.path.dirname(os.path.abspath(__file__)).split("\\handlers")[0]
+    else:
+        # Get the current working directory
+        current_directory = os.path.dirname(os.path.abspath(__file__)).split("/handlers")[0]
+
+    with open(current_directory + '/templates/email_password_reset.html', 'r', encoding='utf8') as html_file:
+        email_template = html_file.read()
+
+    # Render the email template with the context (including the reset_token)
+    body = render_template_string(email_template, reset_token=reset_token)
+    
+    # Send the recovery email to the user
+    return send_email(email, "Reset your password", body)
+
 
 
 
@@ -275,18 +355,18 @@ def update_email(id, email):
     db_query(query, (email, id))
 
 
-def update_password(id, password):
-
+def update_password(username, password):
+    id = str(get_id_by_username(username))
     # Build the query to update the password in the user's table
     # Secure Query
-    query = "UPDATE users SET password = %s WHERE id = %s"
-    db_query(query, (password, id))
+    query = "UPDATE users SET password = %s WHERE id = %s;"
+    db_query(query, (str(password), id))
 
 
 def get_username_by_id(id):
     # Construct the SQL query to retrieve the username
     # Secure Query
-    query = "SELECT username FROM users WHERE id = %s"
+    query = "SELECT username FROM users WHERE id = %s;"
     result = db_query(query, (id,))
 
     # Check if the username was found
