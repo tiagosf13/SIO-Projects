@@ -252,13 +252,18 @@ def generate_random_id():
 
 def create_user_folder(id):
     # Get the current working directory
-    directory = os.getcwd()
+    if os.name == "nt":
+        # Get the current working directory
+        current_directory = os.path.dirname(os.path.abspath(__file__)).split("\\handlers")[0]
+    else:
+        # Get the current working directory
+        current_directory = os.path.dirname(os.path.abspath(__file__)).split("/handlers")[0]
 
     # Define the path for the user's directory
-    user_directory = os.path.join(directory, "database", "accounts")
+    user_directory = os.path.join(current_directory, "database", "accounts")
 
     # Set the paths for the source and destination files
-    src_path = os.path.join(directory, "static", "images", "default.png")
+    src_path = os.path.join(current_directory, "static", "images", "default.png")
     dst_path = os.path.join(user_directory, f"{id}.png")
 
     # Copy the source file to the destination file

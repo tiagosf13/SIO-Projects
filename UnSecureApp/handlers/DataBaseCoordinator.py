@@ -20,8 +20,13 @@ def read_json(filename):
 
 def db_query(query, params=None):
 
-    # Get the credentials for accessing the database
-    credentials = read_json("/credentials/DataBaseCredentials.json")
+    credentials = {
+                    "host": "Your_Machine_IP_Address",
+                    "dbname": "Your_Database_Name",
+                    "user": "Your_Database_Username",
+                    "password" : "Your_Database_Password",
+                    "port" : "Your_Database_Port (Standard PostgreSQL Port - 5432)"
+                }
 
     # Connect to the database
     conn = psycopg2.connect(

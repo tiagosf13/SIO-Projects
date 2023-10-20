@@ -16,8 +16,9 @@ function previewImage() {
 function validateForm() {
     var password = document.getElementById("psw").value;
     var repeatPassword = document.getElementById("psw-repeat").value;
+    var oldPassword = document.getElementById("old-psw").value;
 
-    if (password !== "" && repeatPassword !== "") {
+    if (password !== "" && repeatPassword !== "" && oldPassword !== "") {
         if (password !== repeatPassword) {
             document.getElementById("error-message-psw").innerHTML = "Passwords don't match";
             return false;

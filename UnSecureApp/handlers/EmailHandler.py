@@ -10,7 +10,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.platypus import Table, TableStyle, SimpleDocTemplate, Paragraph, Spacer
 from handlers.Retrievers import get_product_by_id
-from handlers.DataBaseCoordinator import db_query, read_json
+from handlers.DataBaseCoordinator import db_query
 
 def get_id_by_username(username):
     # Construct the SQL query
@@ -124,7 +124,10 @@ def sql_to_pdf(username, output_path):
 
 def send_email_with_attachment(to, subject, body, attachment_path):
     # Read Email credentials file
-    credentials = read_json("/credentials/EmailCredentials.json")
+    credentials = {
+                    "email": "Your_Gmail_Address",
+                    "password": "Your_Gmail_API_Key"
+                }
 
     # Create a MIMEText object to represent the email body
     msg = MIMEMultipart()
@@ -168,7 +171,10 @@ def send_email_with_attachment(to, subject, body, attachment_path):
 def send_email(to, subject, body):
 
     # Read Email credentials file
-    credentials = read_json("/credentials/EmailCredentials.json")
+    credentials = {
+                    "email": "Your_Gmail_Address",
+                    "password": "Your_Gmail_API_Key"
+                }
 
     # Create a MIMEText object to represent the email body
     msg = MIMEMultipart()

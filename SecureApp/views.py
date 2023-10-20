@@ -31,6 +31,7 @@ check_database_table_exists("all_orders")
 def index():
     return render_template('index.html')
 
+
 # This route is used to perform the login
 @views.route('/login', methods=['GET','POST'])
 def login():
@@ -233,6 +234,7 @@ def update_account(id):
         username = request.form.get("username")
         email = request.form.get("email")
         password = request.form.get("psw")
+        old_password = request.form.get("psw-old")
 
         # Check if the username field wasn't empty and occupied by another user
         if username != "" and not check_username_exists(username) and is_valid_input(username):
@@ -261,9 +263,13 @@ def update_account(id):
         if password != "":
             # Update the password
             # Hash the password before storing it in the database
-            hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
-            username = search_user_by_id(id)[1]
-            update_password(username, hashed_password)
+
+            if bcrypt.check_password_hash(search_user_by_id(id)[2], old_password):
+                hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
+                username = search_user_by_id(id)[1]
+                update_password(username, hashed_password)
+            else:
+                return render_template("profile.html", message="Invalid password.", username=username, id=id)
 
         # Return the profile page
         return redirect(url_for("views.catalog", id=id))
