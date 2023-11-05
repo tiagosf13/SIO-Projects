@@ -316,6 +316,10 @@ To fix this, we checked if the user ID was present when we looked at the view. I
         return render_template("profile.html", username=username, id=id)
 ```
 
+Demonstration after the fix:
+
+https://github.com/detiuaveiro/1st-project-group_10/assets/102866402/6962b34a-3972-4b37-9792-691684718d57
+
 ---
 
 # V4 [[CWE-256](https://cwe.mitre.org/data/definitions/256.html)] - Plaintext Storage of a Password

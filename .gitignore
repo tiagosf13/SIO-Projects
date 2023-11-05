@@ -1,13 +1,14 @@
-SecureApp/credentials/DataBaseCredentials.json
-SecureApp/credentials/EmailCredentials.json
-UnSecureApp/credentials/DataBaseCredentials.json
-UnSecureApp/credentials/EmailCredentials.json
-SecureApp/commands.txt
-UnSecureApp/commands.txt
-SecureApp/__pycache__
-UnSecureApp/__pycache__
-SecureApp/handlers/__pycache__
-UnSecureApp/handlers/__pycache__
-SecureApp/SIO-Project-VENV
-UnSecureApp/SIO-Project-VENV
+app_sec/credentials/DataBaseCredentials.json
+app_sec/credentials/EmailCredentials.json
+app/credentials/DataBaseCredentials.json
+app/credentials/EmailCredentials.json
+app_sec/commands.txt
+app/commands.txt
+app_sec/__pycache__
+app/__pycache__
+app_sec/handlers/__pycache__
+app/handlers/__pycache__
+app_sec/SIO-Project-VENV
+app/SIO-Project-VENV
 Analysis Tool/nikto/
+*.docx
